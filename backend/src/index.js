@@ -7,6 +7,7 @@ const mascotasRutas = require("../rutas/mascotasRuta");
 const resenasRutas = require("../rutas/resenasRuta");
 const usuarioClienteRutas = require("../rutas/usuarioClienteRuta");
 const usuarioEmpleadorRutas = require("../rutas/usuarioEmpleadorRuta");
+const turnosRutas = require("../rutas/turnosRuta");
 
 
 // Configuración inicial
@@ -27,3 +28,4 @@ app.use(serviciosRutas);
 app.use(resenasRutas);
 app.use(usuarioClienteRutas);
 app.use(usuarioEmpleadorRutas);
+app.use(turnosRutas);
