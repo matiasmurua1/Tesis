@@ -13,12 +13,12 @@ const getResenas = async (req, res) => {
 
 // Controlador para crear una nueva resena
 const createResena = async (req, res) => {
-    const { nombre_usuario_cliente, comentario, id_solicitud_servicio } = req.body;
-    if (!nombre_usuario_cliente || !comentario || !id_solicitud_servicio) {
+    const { id_usuario_cliente, comentario, id_solicitud_servicio } = req.body;
+    if (!id_usuario_cliente || !comentario || !id_solicitud_servicio) {
         return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
     }
     try {
-        const nuevaResenaId = await resenasModelo.postResena({ nombre_usuario_cliente, comentario, id_solicitud_servicio });
+        const nuevaResenaId = await resenasModelo.postResena({ id_usuario_cliente, comentario, id_solicitud_servicio });
         res.status(201).json({ mensaje: 'Resena creada exitosamente', id: nuevaResenaId });
     } catch (error) {
         console.error('Error al crear la resena:', error);
@@ -29,12 +29,12 @@ const createResena = async (req, res) => {
 // Controlador para actualizar una resena por ID
 const updateResena = async (req, res) => {
     const { id } = req.params;
-    const { nombre_usuario_cliente, comentario, id_solicitud_servicio } = req.body;
-    if (!nombre_usuario_cliente || !comentario || !id_solicitud_servicio) {
+    const { id_usuario_cliente, comentario, id_solicitud_servicio } = req.body;
+    if (!id_usuario_cliente || !comentario || !id_solicitud_servicio) {
         return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
     }
     try {
-        const filasActualizadas = await resenasModelo.putResena(id, { nombre_usuario_cliente, comentario, id_solicitud_servicio });
+        const filasActualizadas = await resenasModelo.putResena(id, { id_usuario_cliente, comentario, id_solicitud_servicio });
         if (filasActualizadas === 0) {
             return res.status(404).json({ mensaje: 'Resena no encontrada' });
         }

@@ -15,11 +15,11 @@ const getResenas = async () => {
 // Crear una nueva resena
 const postResena = async (resena) => {
     const connection = await getConnection();
-    const { nombre_usuario_cliente, comentario, id_solicitud_servicio } = resena; // Extrae los valores del objeto `resena`
+    const { id_usuario_cliente, comentario, id_solicitud_servicio } = resena; // Extrae los valores del objeto `resena`
     try {
         const result = await connection.query(
-            'INSERT INTO resena (nombre_usuario_cliente, comentario, id_solicitud_servicio) VALUES (?, ?, ?)',
-            [nombre_usuario_cliente, comentario, id_solicitud_servicio]
+            'INSERT INTO resena (id_usuario_cliente, comentario, id_solicitud_servicio) VALUES (?, ?, ?)',
+            [id_usuario_cliente, comentario, id_solicitud_servicio]
         );
         return result.insertId; // Devuelve el ID de la resena insertada
     } catch (error) {
@@ -31,11 +31,11 @@ const postResena = async (resena) => {
 // Actualizar una resena por ID
 const putResena = async (id, resena) => {
     const connection = await getConnection();
-    const { nombre_usuario_cliente, comentario, id_solicitud_servicio } = resena; // Extrae los valores del objeto `resena`
+    const { id_usuario_cliente, comentario, id_solicitud_servicio } = resena; // Extrae los valores del objeto `resena`
     try {
         const result = await connection.query(
-            'UPDATE resena SET nombre_usuario_cliente = ?, comentario = ?, id_solicitud_servicio = ? WHERE id = ?',
-            [nombre_usuario_cliente, comentario, id_solicitud_servicio, id]
+            'UPDATE resena SET id_usuario_cliente = ?, comentario = ?, id_solicitud_servicio = ? WHERE id = ?',
+            [id_usuario_cliente, comentario, id_solicitud_servicio, id]
         );
         return result.affectedRows; // Devuelve el número de filas actualizadas
     } catch (error) {
