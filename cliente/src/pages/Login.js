@@ -3,10 +3,25 @@ import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import imageBG from '../assets/Home/home3.jpg'
-
 import Link from '@mui/material/Link';
+import { useState } from 'react';
+import { postLogin } from '../services/login';
 
 export default function Login() {
+    const [error, setError] = useState(null);
+    const [usuario, setUsuario] = useState('');
+    const [contrasena, setContrasena] = useState('');
+    const login = async () => {
+        try{
+            let response = await postLogin(usuario, contrasena);
+            console.log(response)
+
+        }catch(error){
+            setError(error.message);
+            window.alert(error.message);
+        }
+        
+    }
     return(
         <Grid container 
         style={{ backgroundImage: `url('${imageBG}')`, backgroundRepeat:'no-repeat', backgroundSize: 'cover',marginButtom: '100px'}} spacing={4} display='flex' justifyContent="center" alignItems="center" >
@@ -17,22 +32,25 @@ export default function Login() {
                 </Typography>
             </Grid>
             <Grid xs={12} sm={8} md={4} display='flex' flexDirection='column' gap={3}>
-                <TextField
+                <TextField 
                     size="small"
                     variant="outlined"
-                    type="email"
-                    label="Email"
-                    name="email"
+                    label="usuario"
+                    name="usuario"
+                    required={true}
+                    onChange={(e) => setUsuario(e.target.value)}
                 ></TextField>
-                <TextField
+                <TextField 
                     size="small"
                     variant="outlined"
                     type="password"
-                    label="Password"
-                    name="password"
+                    label="contrasena"
+                    name="contrasena"
+                    required={true}
+                    onChange={(e) => setContrasena(e.target.value)}
                 ></TextField>
                 <Grid display='flex' justifyContent='center' sx={{margin:' 10px'}}>
-                    <Button color="primary" variant="contained" type="submit">
+                    <Button onClick={()=>{login()}} color="primary" variant="contained" type="submit">
                         Login
                     </Button>
                 </Grid>

@@ -3,16 +3,16 @@ const loginModelo = require('../modelos/loginModelo')
 
 // Controlador para el login
 const loginUsuario = async (req, res) => {
-    const { nombre, contrasena } = req.body;
+    const { email, contrasena } = req.body;
 
-    // Validar que el nombre y la contraseña estén presentes
-    if (!nombre || !contrasena) {
-        return res.status(400).json({ mensaje: 'Nombre y contraseña son obligatorios' });
+    // Validar que el email y la contraseña estén presentes
+    if (!email || !contrasena) {
+        return res.status(400).json({ mensaje: 'email y contraseña son obligatorios' });
     }
 
     try {
-        // Obtener el usuario por nombre y contraseña
-        const usuario = await loginModelo.getUsuarioClientePorNombreYContrasena(nombre, contrasena);
+        // Obtener el usuario por email y contraseña
+        const usuario = await loginModelo.getUsuarioClientePorEmailYContrasena(email, contrasena);
 
         if (!usuario) {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });

@@ -9,11 +9,18 @@ const usuarioClienteRutas = require("../rutas/usuarioClienteRuta");
 const usuarioEmpleadorRutas = require("../rutas/usuarioEmpleadorRuta");
 const loginRutas = require("../rutas/loginRuta");
 const solicitudServiciosRutas = require("../rutas/solicitudServicioRuta")
+const cors = require("cors");
+
 
 // Configuración inicial
 const app = express();
 app.set("port", 4000);
 app.use(express.json());
+app.use(cors({
+    origin: "http://localhost:3000",
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type,Authorization"
+}));
 // Middlewares
 app.use(morgan("dev"));
 
