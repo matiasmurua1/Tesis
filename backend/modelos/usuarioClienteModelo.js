@@ -1,7 +1,7 @@
 const { getConnection } = require('../src/configuracion/conexionBaseDatos');
 
 // Obtener todos los usuarios clientes
-const getUsuariosClientes = async () => {
+const mostrarUsuariosClientes = async () => {
     const connection = await getConnection();
     try {
         const usuariosClientes = await connection.query('SELECT * FROM usuario_cliente');
@@ -13,13 +13,13 @@ const getUsuariosClientes = async () => {
 };
 
 // Crear un nuevo usuario cliente
-const postUsuarioCliente = async (usuarioCliente) => {
+const crearUsuarioCliente = async (usuarioCliente) => {
     const connection = await getConnection();
-    const { nombre, contrasena, dni, telefono, direccion, id_mascota } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
+    const { nombre, contrasena, dni, telefono, direccion, id_mascota, email } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
     try {
         const result = await connection.query(
-            'INSERT INTO usuario_cliente (nombre, contrasena, dni, telefono, direccion, id_mascota) VALUES (?, ?, ?, ?, ?, ?)',
-            [nombre, contrasena, dni, telefono, direccion, id_mascota]
+            'INSERT INTO usuario_cliente (nombre, contrasena, dni, telefono, direccion, id_mascota, email) VALUES (?, ?, ?, ?, ?, ?,?)',
+            [nombre, contrasena, dni, telefono, direccion, id_mascota, email]
         );
         return result.insertId; // Devuelve el ID del usuario cliente insertado
     } catch (error) {
@@ -29,13 +29,13 @@ const postUsuarioCliente = async (usuarioCliente) => {
 };
 
 // Actualizar un usuario cliente por ID
-const putUsuarioCliente = async (id, usuarioCliente) => {
+const actualizarUsuarioCliente = async (id, usuarioCliente) => {
     const connection = await getConnection();
-    const { nombre, contrasena, dni, telefono, direccion, id_mascota } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
+    const { nombre, contrasena, dni, telefono, direccion, id_mascota, email } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
     try {
         const result = await connection.query(
-            'UPDATE usuario_cliente SET nombre = ?, contrasena = ?, dni = ?, telefono = ?, direccion = ?, id_mascota = ? WHERE id = ?',
-            [nombre, contrasena, dni, telefono, direccion, id_mascota, id]
+            'UPDATE usuario_cliente SET nombre = ?, contrasena = ?, dni = ?, telefono = ?, direccion = ?, id_mascota = ?, email = ? WHERE id = ?',
+            [nombre, contrasena, dni, telefono, direccion, id_mascota, email, id]
         );
         return result.affectedRows; // Devuelve el número de filas actualizadas
     } catch (error) {
@@ -45,7 +45,7 @@ const putUsuarioCliente = async (id, usuarioCliente) => {
 };
 
 // Eliminar un usuario cliente por ID
-const deleteUsuarioCliente = async (idUsuarioCliente) => {
+const eliminarUsuarioCliente = async (idUsuarioCliente) => {
     const connection = await getConnection();
     try {
         const result = await connection.query(
@@ -60,5 +60,5 @@ const deleteUsuarioCliente = async (idUsuarioCliente) => {
 };
 
 module.exports = {
-    getUsuariosClientes, postUsuarioCliente, putUsuarioCliente, deleteUsuarioCliente
+    mostrarUsuariosClientes, crearUsuarioCliente, actualizarUsuarioCliente, eliminarUsuarioCliente
 };

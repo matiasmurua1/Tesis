@@ -7,7 +7,8 @@ import Login from "../pages/Login";
 import Services from "../pages/Services";
 import TableServices from "../pages/TableService";
 
-export default function RouterConfig() {
+
+export default function ConfiguracionRuta() {
     return (
         <BrowserRouter>
             <Routes>

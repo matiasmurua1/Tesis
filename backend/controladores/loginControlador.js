@@ -12,7 +12,7 @@ const loginUsuario = async (req, res) => {
 
     try {
         // Obtener el usuario por email y contraseña
-        const usuario = await loginModelo.getUsuarioClientePorEmailYContrasena(email, contrasena);
+        const usuario = await loginModelo.mostrarUsuarioClientePorEmailYContrasena(email, contrasena);
 
         if (!usuario) {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });

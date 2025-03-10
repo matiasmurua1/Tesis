@@ -24,8 +24,8 @@ export default function Login() {
         navigate("/");
       }
     } catch (error) {
-        console.log("Mensaje de error capturado:", error.message); // 🔍 Verifica qué error llega
-        setError(error.message); // Ahora Snackbar mostrará este mensaje
+      console.log("Mensaje de error capturado:", error.message); // 🔍 Verifica qué error llega
+      setError(error.message); // Ahora Snackbar mostrará este mensaje
     }
   };
 

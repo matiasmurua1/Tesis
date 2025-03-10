@@ -13,7 +13,7 @@ const mockServices = [
         image: peluqueria
     },
     {
-        title: 'Paseos',
+        title: 'Paseo',
         description: 'Llevamos a tus peludos a disfrutar de paseos divertidos y seguros, asegurándonos de que tengan la actividad física que necesitan y, al mismo tiempo, explorando nuevos entornos.',
         image: paseos
     },

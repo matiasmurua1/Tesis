@@ -1,6 +1,6 @@
 
 
-import RouterConfig from "./navegation/RouterConfig";
+import ConfiguracionRuta from "./navegacion/ConfiguracionRuta";
 import MenuBar from "./components/MenuBar/MenuBar";
 import { ThemeProvider } from '@mui/material';
 import theme from "./theme/index"
@@ -11,7 +11,7 @@ function App() {
     <div className="App" >
       <ThemeProvider theme={theme}>
         <MenuBar/>
-        <RouterConfig/>
+        <ConfiguracionRuta/>
         <Footer/>
       </ThemeProvider>
     </div>
