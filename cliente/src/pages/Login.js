@@ -18,10 +18,13 @@ export default function Login() {
   const login = async () => {
     try {
       let response = await postLogin(usuario, contrasena);
-
+      console.log(response)
+      //let data = await response.json();
       if (response.status === 200) {
         // Si el login es exitoso, redirige al usuario
+        console.log(response)
         navigate("/");
+
       }
     } catch (error) {
       console.log("Mensaje de error capturado:", error.message); // 🔍 Verifica qué error llega

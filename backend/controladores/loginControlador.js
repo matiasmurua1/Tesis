@@ -1,5 +1,5 @@
 // authControlador.js
-const loginModelo = require('../modelos/loginModelo')
+const loginModelo = require('../modelos/loginModelo');
 
 // Controlador para el login
 const loginUsuario = async (req, res) => {
@@ -18,11 +18,11 @@ const loginUsuario = async (req, res) => {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
         }
 
-        // Aquí podrías generar un token JWT o establecer una sesión
-        res.status(200).json({ mensaje: 'Login exitoso', usuario });
+        // Respuesta exitosa sin incluir `statuscode` innecesario
+        return res.status(200).json({ mensaje: 'Login exitoso', usuario });
     } catch (error) {
         console.error('Error al realizar login:', error);
-        res.status(500).json({ mensaje: 'Error al realizar login' });
+        return res.status(500).json({ mensaje: 'Error al realizar login' });
     }
 };
 

@@ -9,6 +9,7 @@ const usuarioClienteControlador = require("../controladores/usuarioClienteContro
 //Rutas usuariosClientes
 
 usuarioClienteRutas.get("/usuariosClientes", usuarioClienteControlador.getUsuariosClientes);
+usuarioClienteRutas.get("/usuariosClientes/:id", usuarioClienteControlador.getUsuariosClientesPorID);
 usuarioClienteRutas.post("/usuariosClientes", usuarioClienteControlador.postUsuarioCliente);
 usuarioClienteRutas.put("/usuariosClientes/:id", usuarioClienteControlador.putUsuarioCliente);
 usuarioClienteRutas.delete("/usuariosClientes/:id", usuarioClienteControlador.deleteUsuarioCliente);

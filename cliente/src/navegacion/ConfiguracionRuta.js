@@ -6,6 +6,7 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Services from "../pages/Services";
 import TableServices from "../pages/TableService";
+import AdministrarUsuario from "../pages/AdministrarUsuario"; 
 
 
 export default function ConfiguracionRuta() {
@@ -16,6 +17,7 @@ export default function ConfiguracionRuta() {
                 <Route path="/login" element={<Login/>} />
                 <Route path="/servicios" element={<Services/>} />
                 <Route path="/servicios/:service" element={<TableServices/>} />
+                <Route path="/usuariosClientes" element={<AdministrarUsuario />} />
             </Routes>
         </BrowserRouter>
     );

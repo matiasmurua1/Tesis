@@ -1,5 +1,16 @@
 const { getConnection } = require('../src/configuracion/conexionBaseDatos');
 
+
+const mostrarUsuariosClientesPorID = async (id) => {
+    const connection = await getConnection();
+    try {
+        const usuariosClientes = await connection.query('SELECT * FROM usuario_cliente where id = ?', [id]);
+        return usuariosClientes;
+    } catch (error) {
+        console.error('Error al obtener usuarios clientes:', error);
+        throw error;
+    }
+};
 // Obtener todos los usuarios clientes
 const mostrarUsuariosClientes = async () => {
     const connection = await getConnection();
@@ -60,5 +71,5 @@ const eliminarUsuarioCliente = async (idUsuarioCliente) => {
 };
 
 module.exports = {
-    mostrarUsuariosClientes, crearUsuarioCliente, actualizarUsuarioCliente, eliminarUsuarioCliente
+    mostrarUsuariosClientes, crearUsuarioCliente, actualizarUsuarioCliente, eliminarUsuarioCliente, mostrarUsuariosClientesPorID
 };

@@ -1,5 +1,16 @@
 const usuarioClienteModelo = require('../modelos/usuarioClienteModelo');
 
+const getUsuariosClientesPorID = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const usuariosClientes = await usuarioClienteModelo.mostrarUsuariosClientesPorID(id);
+        res.status(200).json(usuariosClientes);
+    } catch (error) {
+        console.error('Error al obtener los datos del cliente buscado:', error);
+        res.status(500).json({ mensaje: 'Error al obtener los datos del cliente buscado' });
+    }
+};
+
 // Controlador para obtener todos los usuarios clientes
 const getUsuariosClientes = async (req, res) => {
     try {
@@ -64,5 +75,6 @@ module.exports = {
     getUsuariosClientes,
     postUsuarioCliente,
     putUsuarioCliente,
-    deleteUsuarioCliente
+    deleteUsuarioCliente,
+    getUsuariosClientesPorID
 };
