@@ -8,29 +8,33 @@ import { useState } from "react";
 import { postLogin } from "../services/login";
 import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
+import { useAuth } from "../context/usuarioContexto";
 
 export default function Login() {
+  const { user, login } = useAuth();
   const [error, setError] = useState(null);
   const [usuario, setUsuario] = useState("");
   const [contrasena, setContrasena] = useState("");
   const navigate = useNavigate();
 
-  const login = async () => {
+  const loginHandler = async () => {
     try {
       let response = await postLogin(usuario, contrasena);
-      console.log(response)
       //let data = await response.json();
       if (response.status === 200) {
         // Si el login es exitoso, redirige al usuario
-        console.log(response)
+        login(response.data.token);
         navigate("/");
-
       }
     } catch (error) {
       console.log("Mensaje de error capturado:", error.message); // 🔍 Verifica qué error llega
       setError(error.message); // Ahora Snackbar mostrará este mensaje
     }
   };
+
+  const registroHandler = () => {
+    navigate("/signup");
+  }
 
   return (
     <Grid
@@ -94,7 +98,7 @@ export default function Login() {
           <Grid display="flex" justifyContent="center" sx={{ margin: " 10px" }}>
             <Button
               onClick={() => {
-                login();
+                loginHandler();
               }}
               color="primary"
               variant="contained"
@@ -109,9 +113,9 @@ export default function Login() {
             flexDirection="column"
             xs={12}
           >
-            <Link to={"/signup"}>¿ Olvidaste tu contraseña ?</Link>
+            <Link onClick={()=> registroHandler()}>¿ Olvidaste tu contraseña ?</Link>
             <br />
-            <Link to={"/signup"}>¿Todavía no tenés usuario?</Link>
+            <Link onClick={()=> registroHandler()}>¿Todavía no tenés usuario?</Link>
           </Grid>
         </Grid>
       </Grid>

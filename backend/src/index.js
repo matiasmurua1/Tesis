@@ -6,7 +6,6 @@ const serviciosRutas = require("../rutas/serviciosRuta");
 const mascotasRutas = require("../rutas/mascotasRuta");
 const resenasRutas = require("../rutas/resenasRuta");
 const usuarioClienteRutas = require("../rutas/usuarioClienteRuta");
-const usuarioEmpleadorRutas = require("../rutas/usuarioEmpleadorRuta");
 const loginRutas = require("../rutas/loginRuta");
 const solicitudServiciosRutas = require("../rutas/solicitudServicioRuta")
 const cors = require("cors");
@@ -34,6 +33,5 @@ app.use(mascotasRutas);
 app.use(serviciosRutas);
 app.use(resenasRutas);
 app.use(usuarioClienteRutas);
-app.use(usuarioEmpleadorRutas);
 app.use(loginRutas);
 app.use(solicitudServiciosRutas);

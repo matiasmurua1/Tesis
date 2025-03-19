@@ -1,9 +1,9 @@
 const usuarioClienteModelo = require('../modelos/usuarioClienteModelo');
 
-const getUsuariosClientesPorID = async (req, res) => {
+const getUsuarioClientePorID = async (req, res) => {
     const { id } = req.params;
     try {
-        const usuariosClientes = await usuarioClienteModelo.mostrarUsuariosClientesPorID(id);
+        const usuariosClientes = await usuarioClienteModelo.mostrarUsuarioClientePorID(id);
         res.status(200).json(usuariosClientes);
     } catch (error) {
         console.error('Error al obtener los datos del cliente buscado:', error);
@@ -24,12 +24,12 @@ const getUsuariosClientes = async (req, res) => {
 
 // Controlador para crear un nuevo usuario cliente
 const postUsuarioCliente = async (req, res) => {
-    const { nombre, contrasena, dni, telefono, direccion, id_mascota, email } = req.body;
-    if (!nombre || !contrasena || !dni || !telefono || !direccion || !id_mascota || !email) {
+    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio } = req.body;
+    if (!nombre || !contrasena || !dni_cuit || !telefono || !direccion || !id_mascota || !email || !id_rol || !id_servicio) {
         return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
     }
     try {
-        const nuevoUsuarioClienteId = await usuarioClienteModelo.crearUsuarioCliente({ nombre, contrasena, dni, telefono, direccion, id_mascota, email });
+        const nuevoUsuarioClienteId = await usuarioClienteModelo.crearUsuarioCliente({ nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio });
         res.status(201).json({ mensaje: 'Usuario cliente creado exitosamente', id: nuevoUsuarioClienteId });
     } catch (error) {
         console.error('Error al crear el usuario cliente:', error);
@@ -40,12 +40,12 @@ const postUsuarioCliente = async (req, res) => {
 // Controlador para actualizar un usuario cliente por ID
 const putUsuarioCliente = async (req, res) => {
     const { id } = req.params;
-    const { nombre, contrasena, dni, telefono, direccion, id_mascota, email } = req.body;
-    if (!nombre || !contrasena || !dni || !telefono || !direccion || !id_mascota || !email) {
+    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio } = req.body;
+    if (!nombre || !contrasena || !dni_cuit || !telefono || !direccion || !id_mascota || !email || !id_rol || !id_servicio) {
         return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
     }
     try {
-        const filasActualizadas = await usuarioClienteModelo.actualizarUsuarioCliente(id, { nombre, contrasena, dni, telefono, direccion, id_mascota, email });
+        const filasActualizadas = await usuarioClienteModelo.actualizarUsuarioCliente(id, { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio });
         if (filasActualizadas === 0) {
             return res.status(404).json({ mensaje: 'Usuario cliente no encontrado' });
         }
@@ -76,5 +76,5 @@ module.exports = {
     postUsuarioCliente,
     putUsuarioCliente,
     deleteUsuarioCliente,
-    getUsuariosClientesPorID
+    getUsuarioClientePorID
 };

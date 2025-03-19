@@ -11,8 +11,10 @@ export const postLogin = async (email,contrasena) => {
         if (!response.ok) {
             throw new Error(data.mensaje || "Error en el login");
         }
+
+        localStorage.setItem("token", data.token);
         return {data, status: response.status}; // Devuelve los datos del backend
-        //localStorage.setItem("token", data.token); // Guardar token JWT
+         // Guardar token JWT
         //alert("Login exitoso!");
 
     } catch (error) {
