@@ -41,11 +41,12 @@ const postUsuarioCliente = async (req, res) => {
 const putUsuarioCliente = async (req, res) => {
     const { id } = req.params;
     const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio } = req.body;
-    if (!nombre || !contrasena || !dni_cuit || !telefono || !direccion || !id_mascota || !email || !id_rol || !id_servicio) {
-        return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
-    }
+    // if (!nombre || !contrasena || !dni_cuit || !telefono || !direccion || !id_mascota || !email || !id_rol || !id_servicio) {
+    //     return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
+    // }
+    console.log("body ", req.body.usuario)
     try {
-        const filasActualizadas = await usuarioClienteModelo.actualizarUsuarioCliente(id, { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio });
+        const filasActualizadas = await usuarioClienteModelo.actualizarUsuarioCliente(id, req.body.usuario);
         if (filasActualizadas === 0) {
             return res.status(404).json({ mensaje: 'Usuario cliente no encontrado' });
         }

@@ -27,3 +27,22 @@ export const obtenerUsuarioClientePorID = async (id) => {
     throw error;
   }
 };
+
+
+export const modificarUsuarioClientePorID = async (id, usuario) => {
+  try {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usuario }),
+    });
+    if (!response.ok) {
+      throw new Error("Error al modificar usuario");
+    }
+    const data = await response.json();
+    return data; // Devuelve los datos del backend
+  } catch (error) {
+    console.error("Error al modificar usuario", error);
+    throw error;
+  }
+};
