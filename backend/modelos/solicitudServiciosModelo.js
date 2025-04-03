@@ -12,6 +12,21 @@ const getSolicitudesServicio = async () => {
     }
 };
 
+// Obtener todas las solicitudes de servicio
+const getSolicitudesServicioPorCliente = async (idUsuarioCliente) => {
+    const connection = await getConnection();
+    try {
+        const solicitudes = await connection.query('SELECT * FROM solicitud_servicio WHERE id_usuario_cliente = ?', [idUsuarioCliente]);
+        if (solicitudes.length === 0) { // Si no hay solicitudes, devuelve un array vacío
+            return []; // Devuelve un array vacío si no hay solicitudes
+            }
+        return solicitudes;
+    } catch (error) {
+        console.error('Error al obtener las solicitudes de servicio:', error);
+        throw error;
+    }
+};
+
 // Crear una nueva solicitud de servicio
 const postSolicitudServicio = async (solicitud) => {
     const connection = await getConnection();
@@ -63,5 +78,6 @@ module.exports = {
     getSolicitudesServicio,
     postSolicitudServicio,
     putSolicitudServicio,
-    deleteSolicitudServicio
+    deleteSolicitudServicio,
+    getSolicitudesServicioPorCliente
 };

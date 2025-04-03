@@ -9,11 +9,9 @@ import TableServices from "../pages/TableService";
 import MiPerfil from "../pages/MiPerfil"; 
 import ProteccionRuta from "./proteccionRuta";
 
-import { AuthProvider } from "../context/usuarioContexto";
 
 export default function ConfiguracionRuta() {
     return (
-        <AuthProvider> 
             <BrowserRouter>
                 <Routes>
                     <Route path="" element={<Home/>} />
@@ -24,11 +22,10 @@ export default function ConfiguracionRuta() {
                     </Route>
                         
                     <Route element={<ProteccionRuta rolesAceptados={["EMPLEADOR", "ADMIN"]}/>}>
-                        <Route path="/usuariosClientes" element={<MiPerfil />} />
+                        <Route path="/mi-perfil" element={<MiPerfil />} />
                     </Route>
                 </Routes>
             </BrowserRouter>
         
-        </AuthProvider> 
     );
 }

@@ -6,14 +6,18 @@ import { ThemeProvider } from '@mui/material';
 import theme from "./theme/index"
 import Footer from "./components/Footer/Footer";
 
+import { AuthProvider } from "./context/usuarioContexto";
+
 function App() {
   return (
     <div className="App" >
-      <ThemeProvider theme={theme}>
-        <MenuBar/>
-        <ConfiguracionRuta/>
-        <Footer/>
-      </ThemeProvider>
+      <AuthProvider> 
+        <ThemeProvider theme={theme}>
+          <MenuBar/>
+          <ConfiguracionRuta/>
+          <Footer/>
+        </ThemeProvider>
+      </AuthProvider> 
     </div>
   );
 }

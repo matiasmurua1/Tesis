@@ -1,28 +1,51 @@
 import React, { useEffect, useState } from "react";
-import { obtenerUsuarioClientePorID, modificarUsuarioClientePorID} from "../services/administrarUsuario";
+import { obtenerUsuarioClientePorID, modificarUsuarioClientePorID, borrarUsuarioClientePorID } from "../services/administrarUsuario";
 import {
   Container,
   Typography,
   Button,
   Box,
   Paper,
-  Stack,
   IconButton,
-  Grid,
+  Avatar,
+  Divider,
+  CircularProgress,
   Dialog,
-  DialogActions,
-  DialogContent,
   DialogTitle,
-  TextField,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar
 } from "@mui/material";
+import Grid from '@mui/material/Grid';
 import { useAuth } from "../context/usuarioContexto";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff, Edit, Pets, Phone, Email, Home, Badge, Lock } from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import EditarPerfilModal from "../components/EditarPerfilModal/EditarPerfilModal";
+import SolicitudesEnviadas from "../components/SolicitudesEnviadas/SolicitudesEnviadas";
+import {borrarSolicitudPorID, obtenerSolicitudesPorCliente} from "../services/solicitudes";
+import ConfirmationModal from "../components/ConfirmarModal/ConfirmarModal";
+import { useNavigate } from "react-router-dom";
+
+// Componente estilizado para los ítems del perfil
+const ProfileItem = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(1.5),
+  borderRadius: theme.shape.borderRadius,
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  transition: 'background-color 0.3s ease',
+}));
 
 const MiPerfil = () => {
   const [usuario, setUsuario] = useState(null);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -32,10 +55,16 @@ const MiPerfil = () => {
     contrasena: "",
   });
 
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [loadingSolicitudes, setLoadingSolicitudes] = useState(true);
+
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+
   const toggleMostrarContrasena = () => {
     setMostrarContrasena((prev) => !prev);
   };
-
 
   useEffect(() => {
     if (usuario) {
@@ -45,11 +74,12 @@ const MiPerfil = () => {
         direccion: usuario.direccion || "",
         telefono: usuario.telefono || "",
         dni_cuit: usuario.dni_cuit || "",
-        contrasena: usuario.contrasena || "",
+        contrasena: "",
+        id_mascota: usuario.id_mascota || "",
       });
+      setLoading(false);
     }
   }, [usuario]);
-
 
   const fetchUsuario = async () => {
     if (!user || !user.id) {
@@ -58,15 +88,47 @@ const MiPerfil = () => {
     }
 
     try {
+      setLoading(true);
       const data = await obtenerUsuarioClientePorID(user.id);
       setUsuario(data[0] || {});
     } catch (error) {
       console.error("Error al obtener el usuario cliente:", error);
+      setLoading(false);
     }
   }
 
+  const fetchSolicitudes = async () => {
+    try {
+      setLoadingSolicitudes(true);
+      const data = await obtenerSolicitudesPorCliente(user.id);
+      setSolicitudes(data || []); // Asegura que sea array
+    } catch (error) {
+      console.error("Error al obtener las solicitudes del cliente:", error);
+      setLoading(false);
+    } finally {
+      setLoadingSolicitudes(false);
+    }
+  };
+  
+  const fetchBorrarUsuario = async () => {
+    try {
+      const data = await borrarUsuarioClientePorID(user.id);
+    } catch (error) {
+      console.error("Error al borrar cliente:", error);
+    }
+  };
+
+  const fetchBorrarSolicitudPorID = async (solicitudId) => {
+    try {
+      const data = await borrarSolicitudPorID(solicitudId);
+    } catch (error) {
+      console.error("Error al borrar la solicitud del cliente:", error);
+    }
+  } 
+
   useEffect(() => {
     fetchUsuario();
+    fetchSolicitudes();
   }, [user]);
 
   const handleChange = (e) => {
@@ -74,121 +136,262 @@ const MiPerfil = () => {
   };
 
   const handleUpdate = async () => {
-    console.log("Datos actualizados:", formData);
-    await modificarUsuarioClientePorID(user.id, formData);
-    setOpenModal(false);
-    fetchUsuario();
+    try {
+      await modificarUsuarioClientePorID(user.id, formData);
+      setOpenModal(false);
+      fetchUsuario();
+    } catch (error) {
+      console.error("Error al actualizar:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await fetchBorrarUsuario();
+      setDeleteSuccess(true);
+      setTimeout(() => {
+        navigate("/");
+        logout();
+      }, 2000);
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
+    }
+  };
+
+  const handleDeleteSolicitud = async (solicitudId) => {
+    try {
+      await fetchBorrarSolicitudPorID(solicitudId);
+
+      setDeleteSuccess(true);
+      const updatedSolicitudes = await obtenerSolicitudesPorCliente(user.id);
+      setSolicitudes(updatedSolicitudes);
+      
+      // Opcional: Mostrar notificación de éxito
+    } catch (error) {
+      console.error("Error al eliminar solicitud:", error);
+      // Opcional: Mostrar notificación de error
+      setDeleteSuccess(true);
+    }
+  };
+
+
+  const mostrarContrasenaOculta = (contrasena) => {
+    if (!contrasena) return "";
+    return mostrarContrasena ? contrasena : "•".repeat(8);
+  };
+
+  // Función para obtener iniciales del nombre
+  const getInitials = (name) => {
+    if (!name) return "";
+    const names = name.split(" ");
+    return names.map(n => n[0]).join("").toUpperCase();
   };
 
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: 4 }}>
-      <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: "bold", color: "#3f51b5" }}>
-        Mis Datos
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Typography variant="h4" gutterBottom align="center" sx={{ 
+        fontWeight: "bold", 
+        color: "primary.main",
+        mb: 4,
+        position: 'relative',
+        '&:after': {
+          content: '""',
+          display: 'block',
+          width: '80px',
+          height: '4px',
+          backgroundColor: 'primary.main',
+          margin: '16px auto 0',
+          borderRadius: '2px'
+        }
+      }}>
+        Mi Perfil
       </Typography>
 
-      {usuario ? (
-        <Grid container spacing={2} justifyContent="center">
-          <Grid item xs={12} sm={8} md={6}>
-          <Paper
-              elevation={3}
-              sx={{ padding: 3, borderRadius: 2, backgroundColor: "#f5f5f5" }}
-            >
-              <Box sx={{ marginBottom: 2 }}>
-                <Typography variant="h6" sx={{ color: "#3f51b5" }}>
-                  <strong>Nombre y Apellido:</strong> {usuario.nombre}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  marginBottom: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                }}
-                onClick={toggleMostrarContrasena}
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
+          <CircularProgress size={60} thickness={4} />
+        </Box>
+      ) : usuario ? (
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} sx={{ 
+              p: 3, 
+              borderRadius: 3, 
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)'
+            }}>
+              <Avatar sx={{ 
+                width: 120, 
+                height: 120, 
+                fontSize: 48, 
+                mb: 3,
+                bgcolor: 'primary.main'
+              }}>
+                {getInitials(usuario.nombre)}
+              </Avatar>
+              
+              <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+                {usuario.nombre}
+              </Typography>
+              
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                {usuario.email}
+              </Typography>
+              
+              <Button 
+                variant="contained" 
+                startIcon={<Edit />}
+                onClick={() => setOpenModal(true)}
+                fullWidth
+                sx={{ mb: 2 }}
               >
-                <Typography variant="body1" sx={{ flexGrow: 1 }}>
-                  <strong>Contraseña:</strong> {
-                usuario.contrasena}
-                </Typography>
-                <IconButton
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    toggleMostrarContrasena();
-                  }}
-                >
-                  {mostrarContrasena ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </Box>
-
-              <Box sx={{ marginBottom: 2 }}>
-                <Typography variant="body1">
-                  <strong>DNI:</strong> {usuario.dni_cuit}
-                </Typography>
-              </Box>
-              <Box sx={{ marginBottom: 2 }}>
-                <Typography variant="body1">
-                  <strong>Teléfono:</strong> {usuario.telefono}
-                </Typography>
-              </Box>
-              <Box sx={{ marginBottom: 2 }}>
-                <Typography variant="body1">
-                  <strong>Dirección:</strong> {usuario.direccion}
-                </Typography>
-              </Box>
-              <Box sx={{ marginBottom: 2 }}>
-                <Typography variant="body1">
-                  <strong>ID Mascota:</strong> {usuario.id_mascota}
-                </Typography>
-              </Box>
-              <Box sx={{ marginBottom: 2 }}>
-                <Typography variant="body1">
-                  <strong>Email:</strong> {usuario.email}
-                </Typography>
-              </Box>
-
-              <Stack
-                direction="row"
-                spacing={2}
-                justifyContent="center"
-                sx={{ marginTop: 2 }}
+                Editar Perfil
+              </Button>
+              
+              <Button 
+                variant="outlined" 
+                color="error"
+                fullWidth
+                onClick={() => setOpenDeleteModal(true)}
               >
-                <Button variant="contained" color="error">
-                  Dar de baja mi cuenta
-                </Button>
-                <Button variant="contained" color="primary" onClick={() => setOpenModal(true)}>
-                  Actualizar datos de mi cuenta
-                </Button>
-              </Stack>
+                Dar de baja cuenta
+              </Button>
+            </Paper>
+          </Grid>
+          
+          <Grid item xs={12} md={8}>
+            <Paper elevation={3} sx={{ p: 3, borderRadius: 3 }}>
+              <Typography variant="h6" sx={{ 
+                fontWeight: 600, 
+                mb: 3,
+                display: 'flex',
+                alignItems: 'center',
+                '& svg': { mr: 1 }
+              }}>
+                <Badge fontSize="small" /> Información Personal
+              </Typography>
+              
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <ProfileItem>
+                    <Badge color="primary" sx={{ mr: 2 }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">DNI/CUIT</Typography>
+                      <Typography>{usuario.dni_cuit || 'No especificado'}</Typography>
+                    </Box>
+                  </ProfileItem>
+                </Grid>
+                
+                <Grid item xs={12} sm={6}>
+                  <ProfileItem>
+                    <Phone color="primary" sx={{ mr: 2 }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Teléfono</Typography>
+                      <Typography>{usuario.telefono || 'No especificado'}</Typography>
+                    </Box>
+                  </ProfileItem>
+                </Grid>
+                
+                <Grid item xs={12}>
+                  <ProfileItem>
+                    <Home color="primary" sx={{ mr: 2 }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Dirección</Typography>
+                      <Typography>{usuario.direccion || 'No especificada'}</Typography>
+                    </Box>
+                  </ProfileItem>
+                </Grid>
+                
+                <Grid item xs={12} sm={6}>
+                  <ProfileItem>
+                    <Email color="primary" sx={{ mr: 2 }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Email</Typography>
+                      <Typography>{usuario.email}</Typography>
+                    </Box>
+                  </ProfileItem>
+                </Grid>
+                
+                
+                <Grid item xs={12} sm={6}>
+                  <ProfileItem sx={{ 
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}>
+                    <Lock color="primary" sx={{ mr: 2 }} />
+                    <Box flexGrow={1}>
+                      <Typography variant="caption" color="text.secondary">Contraseña</Typography>
+                      <Typography>{mostrarContrasenaOculta(usuario.contrasena)}</Typography>
+                    </Box>
+                    <IconButton
+                      onClick={toggleMostrarContrasena}
+                      edge="end"
+                      aria-label="toggle password visibility"
+                      sx={{ position: 'absolute', right: 15 }}
+                    >
+                      {mostrarContrasena ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </ProfileItem>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <ProfileItem>
+                    <Pets color="primary" sx={{ mr: 2 }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">Mascota</Typography>
+                      <Typography>{usuario.id_mascota || 'No asignada'}</Typography>
+                    </Box>
+                  </ProfileItem>
+                </Grid>
+                
+              </Grid>
             </Paper>
           </Grid>
         </Grid>
       ) : (
-        <Typography align="center" sx={{ marginTop: 4 }}>
-          Cargando datos del usuario...
-        </Typography>
+        <Typography align="center" sx={{ mt: 4 }}>No se encontraron datos del usuario</Typography>
       )}
 
+      
+      <SolicitudesEnviadas 
+        solicitudes={solicitudes} 
+        loading={loadingSolicitudes}
+        onDeleteSolicitud={handleDeleteSolicitud}
+      />
+
+      <Snackbar
+        open={deleteSuccess}
+        autoHideDuration={2000}
+        message="Cuenta eliminada correctamente"
+      />
+      {/* Modal de confirmación para eliminar cuenta */}
+      <ConfirmationModal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Confirmar eliminación de cuenta"
+        confirmText="Eliminar cuenta"
+        message="¿Estás seguro que deseas eliminar tu cuenta permanentemente? Esta acción no se puede deshacer."
+        warning="Todos tus datos y solicitudes serán eliminados definitivamente."
+      />
+
       {/* Modal de actualización */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Actualizar Datos</DialogTitle>
-        <DialogContent>
-          <TextField fullWidth margin="normal" label="Nombre y Apellido" name="nombre" value={formData.nombre} onChange={handleChange} />
-          <TextField fullWidth margin="normal" label="Email" name="email" value={formData.email} onChange={handleChange} />
-          <TextField fullWidth margin="normal" label="Dirección" name="direccion" value={formData.direccion} onChange={handleChange} />
-          <TextField fullWidth margin="normal" label="Teléfono" name="telefono" value={formData.telefono} onChange={handleChange} />
-          <TextField fullWidth margin="normal" label="DNI" name="dni_cuit" value={formData.dni_cuit} onChange={handleChange} />
-          <TextField fullWidth margin="normal" type="password" label="Nueva Contraseña" name="contrasena" value={formData.contrasena} onChange={handleChange} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenModal(false)} style={{color: "red"}}>
-            Cancelar
-          </Button>
-          <Button onClick={handleUpdate} color="primary" variant="contained">
-            Guardar Cambios
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <EditarPerfilModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        formData={formData}
+        onFormChange={handleChange}
+        onSave={handleUpdate}
+        mostrarContrasena={mostrarContrasena}
+        toggleMostrarContrasena={toggleMostrarContrasena}
+      />
+      
     </Container>
   );
 };

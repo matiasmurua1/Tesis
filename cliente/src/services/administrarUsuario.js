@@ -15,6 +15,7 @@ export const obtenerUsuariosClientes = async () => {
 };
 
 export const obtenerUsuarioClientePorID = async (id) => {
+  console.log("ID del usuariooooooo:", id);
   try {
     const response = await fetch(`${API_URL}/${id}`);
     if (!response.ok) {
@@ -43,6 +44,24 @@ export const modificarUsuarioClientePorID = async (id, usuario) => {
     return data; // Devuelve los datos del backend
   } catch (error) {
     console.error("Error al modificar usuario", error);
+    throw error;
+  }
+};
+
+
+export const borrarUsuarioClientePorID = async (id) => {
+  try {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      throw new Error("Error al borrar usuario");
+    }
+    const data = await response.json();
+    return data; // Devuelve los datos del backend
+  } catch (error) {
+    console.error("Error al borrar usuario", error);
     throw error;
   }
 };
