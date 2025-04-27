@@ -23,7 +23,7 @@ export default function ConfiguracionRuta() {
                         <Route path="/servicios/:service" element={<TableServices/>} />
                     </Route>
                         
-                    <Route element={<ProteccionRuta rolesAceptados={["EMPLEADOR", "ADMIN"]}/>}>
+                    <Route element={<ProteccionRuta rolesAceptados={["EMPLEADOR", "ADMIN", "CLIENTE"]}/>}>
                         <Route path="/usuariosClientes" element={<MiPerfil />} />
                     </Route>
                 </Routes>
