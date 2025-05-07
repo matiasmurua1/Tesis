@@ -8,6 +8,7 @@ import Services from "../pages/Services";
 import TableServices from "../pages/TableService";
 import MiPerfil from "../pages/MiPerfil"; 
 import ProteccionRuta from "./proteccionRuta";
+import Registro from "../pages/Registro";
 
 
 export default function ConfiguracionRuta() {
@@ -16,12 +17,13 @@ export default function ConfiguracionRuta() {
                 <Routes>
                     <Route path="" element={<Home/>} />
                     <Route path="/login" element={<Login/>} />
+                    <Route path="/registro" element={<Registro/>} />
                     <Route element={<ProteccionRuta rolesAceptados={["CLIENTE", "ADMIN"]}/>}>
                         <Route path="/servicios" element={<Services/>} />
                         <Route path="/servicios/:service" element={<TableServices/>} />
                     </Route>
                         
-                    <Route element={<ProteccionRuta rolesAceptados={["EMPLEADOR", "ADMIN"]}/>}>
+                    <Route element={<ProteccionRuta rolesAceptados={["EMPLEADOR", "ADMIN","CLIENTE"]}/>}>
                         <Route path="/mi-perfil" element={<MiPerfil />} />
                     </Route>
                 </Routes>

@@ -16,11 +16,11 @@ const getServicios = async () => {
 const postServicio = async (servicio) => {
   
   const connection = await getConnection();
-  const { tipoServicio, descripcion, duracion, costo } = servicio; // Extrae los valores del objeto `servicio`
+  const { nombre, descripcion, duracion, costo } = servicio; // Extrae los valores del objeto `servicio`
   try {
       const result = await connection.query(
-          'INSERT INTO Servicio (tipoServicio, descripcion, duracion, costo) VALUES (?, ?, ?, ?)',
-          [tipoServicio, descripcion, duracion, costo]
+          'INSERT INTO Servicio (nombre, descripcion, duracion, costo) VALUES (?, ?, ?, ?)',
+          [nombre, descripcion, duracion, costo]
           
       );
       return result.insertId; // Devuelve el ID del servicio insertado
@@ -34,11 +34,11 @@ const postServicio = async (servicio) => {
 // Actualizar un servicio por ID
 const putServicio = async ( id,servicio) => {
   const connection = await getConnection();
-  const { tipoServicio, descripcion, duracion, costo } = servicio; // Extrae los valores del objeto `servicio`
+  const { nombre, descripcion, duracion, costo } = servicio; // Extrae los valores del objeto `servicio`
   try {
     const result = await connection.query(
-      'UPDATE Servicio SET tipoServicio = ?, descripcion = ?, duracion = ?, costo = ? WHERE id = ?',
-      [tipoServicio, descripcion, duracion, costo, id]
+      'UPDATE Servicio SET nombre = ?, descripcion = ?, duracion = ?, costo = ? WHERE id = ?',
+      [nombre, descripcion, duracion, costo, id]
     );
     return result.affectedRows; // Devuelve el número de filas actualizadas
   } catch (error) {

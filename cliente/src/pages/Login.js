@@ -9,7 +9,6 @@ import { postLogin } from "../services/login";
 import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import { useAuth } from "../context/usuarioContexto";
-
 export default function Login() {
   const { user, login } = useAuth();
   const [error, setError] = useState(null);
@@ -33,7 +32,7 @@ export default function Login() {
   };
 
   const registroHandler = () => {
-    navigate("/signup");
+    navigate("/registro");
   }
 
   return (
@@ -113,8 +112,7 @@ export default function Login() {
             flexDirection="column"
             xs={12}
           >
-            <Link onClick={()=> registroHandler()}>¿ Olvidaste tu contraseña ?</Link>
-            <br />
+            
             <Link onClick={()=> registroHandler()}>¿Todavía no tenés usuario?</Link>
           </Grid>
         </Grid>

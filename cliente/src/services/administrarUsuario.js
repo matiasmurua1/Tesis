@@ -29,6 +29,30 @@ export const obtenerUsuarioClientePorID = async (id) => {
   }
 };
 
+export const crearUsuarioCliente = async (usuarioCliente) => {
+  try {
+    const response = await fetch(`${API_URL}`, {
+      method: "POST", // La solicitud debe ser tipo POST para crear recursos.
+      headers: {
+        "Content-Type": "application/json", // Indica que el cuerpo de la solicitud es JSON.
+      },
+      body: JSON.stringify(usuarioCliente), // Convierte los datos del usuario en un formato JSON.
+    });
+    
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.mensaje || "Error en el registro"); // Maneja el caso en el que el backend devuelve un error.
+    }
+
+    console.log("Usuario creado:", data); // Muestra los datos del usuario creado en la consola.
+    return data; 
+    // Devuelve los datos del usuario creado.
+  } catch (error) {
+    throw new Error(error.message); 
+  }
+};
+
 
 export const modificarUsuarioClientePorID = async (id, usuario) => {
   try {

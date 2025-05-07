@@ -24,12 +24,40 @@ const getUsuariosClientes = async (req, res) => {
 
 // Controlador para crear un nuevo usuario cliente
 const postUsuarioCliente = async (req, res) => {
-    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio } = req.body;
-    if (!nombre || !contrasena || !dni_cuit || !telefono || !direccion || !id_mascota || !email || !id_rol || !id_servicio) {
+    let { nombre, contrasena, dni_cuit, telefono, direccion, email, id_rol, id_servicio, esEmpleador } = req.body;
+    console.log("Usuario a crear:", req.body); // Muestra el usuario que se va a crear en la consola.
+    if (!nombre || !contrasena || !dni_cuit || !telefono || !direccion || !email) {
+        if (id_rol =="EMPLEADOR"){
+            if (!id_servicio) {
+                return res.status(400).json({ mensaje: 'Campo servicio es obligatorio' });
+            }
+        }
+        console.log("Error: Todos los campos son obligatorios");
         return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
     }
+    // Verificar si el email ya existe
+    const usuarioExistente = await usuarioClienteModelo.mostrarUsuarioClientePorEmail(email);
+    if (usuarioExistente.length != 0) {
+        console.log("usuario maaaaaaaail: ", usuarioExistente)
+        return res.status(400).json({ mensaje: 'El email ya está en uso' });
+    }
+    // Verificar si el DNI/CUIT ya existe
+    const dniExistente = await usuarioClienteModelo.mostrarUsuarioClientePorDNI(dni_cuit);
+    if (dniExistente.length != 0) {
+        console.log(" dniExistente: ", dniExistente)
+        return res.status(400).json({ mensaje: 'El DNI/CUIT ya está en uso' });
+    }
+
+    if(esEmpleador) {
+        // usuario empleador
+        id_rol = 1;
+    } else {
+        // usuario cliente
+        id_rol = 2;
+    }
+
     try {
-        const nuevoUsuarioClienteId = await usuarioClienteModelo.crearUsuarioCliente({ nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio });
+        const nuevoUsuarioClienteId = await usuarioClienteModelo.crearUsuarioCliente({ nombre, contrasena, dni_cuit, telefono, direccion, email, id_rol, id_servicio });
         res.status(201).json({ mensaje: 'Usuario cliente creado exitosamente', id: nuevoUsuarioClienteId });
     } catch (error) {
         console.error('Error al crear el usuario cliente:', error);

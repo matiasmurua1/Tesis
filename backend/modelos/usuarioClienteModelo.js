@@ -11,6 +11,26 @@ const mostrarUsuarioClientePorID = async (id) => {
         throw error;
     }
 };
+const mostrarUsuarioClientePorEmail = async (email) => {
+    const connection = await getConnection();
+    try {
+        const usuariosCliente = await connection.query('SELECT * FROM usuario_cliente where email = ?', [email]);
+        return usuariosCliente;
+    } catch (error) {
+        console.error('Error al obtener usuarios clientes:', error);
+        throw error;
+    }
+}
+const mostrarUsuarioClientePorDNI = async (dni_cuit) => {
+    const connection = await getConnection();
+    try {
+        const usuariosClientes = await connection.query('SELECT * FROM usuario_cliente where dni_cuit = ?', [dni_cuit]);
+        return usuariosClientes;
+    } catch (error) {
+        console.error('Error al obtener usuarios clientes:', error);
+        throw error;
+    }
+}
 // Obtener todos los usuarios clientes
 const mostrarUsuariosClientes = async () => {
     const connection = await getConnection();
@@ -70,5 +90,5 @@ const eliminarUsuarioCliente = async (idUsuarioCliente) => {
 };
 
 module.exports = {
-    mostrarUsuariosClientes, crearUsuarioCliente, actualizarUsuarioCliente, eliminarUsuarioCliente, mostrarUsuarioClientePorID
+    mostrarUsuariosClientes, crearUsuarioCliente, actualizarUsuarioCliente, eliminarUsuarioCliente, mostrarUsuarioClientePorID, mostrarUsuarioClientePorEmail, mostrarUsuarioClientePorDNI
 };
