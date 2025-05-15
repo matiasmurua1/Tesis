@@ -15,7 +15,6 @@ export const obtenerUsuariosClientes = async () => {
 };
 
 export const obtenerUsuarioClientePorID = async (id) => {
-  console.log("ID del usuariooooooo:", id);
   try {
     const response = await fetch(`${API_URL}/${id}`);
     if (!response.ok) {

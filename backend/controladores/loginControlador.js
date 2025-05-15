@@ -28,6 +28,7 @@ const loginUsuario = async (req, res) => {
             id: usuario.id,
             username: usuario.email,
             rol: permisos, 
+            servicios: usuario.id_servicio
           }
         const token = jwt.sign(payload, "token", { expiresIn: "1h" });
         if (!usuario) {

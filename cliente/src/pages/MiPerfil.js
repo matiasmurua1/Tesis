@@ -17,7 +17,7 @@ import {
   DialogActions,
   Snackbar
 } from "@mui/material";
-import Grid from '@mui/material/Grid';
+import Grid from "@mui/material/Grid";
 import { useAuth } from "../context/usuarioContexto";
 import { Visibility, VisibilityOff, Edit, Pets, Phone, Email, Home, Badge, Lock } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
@@ -26,6 +26,7 @@ import SolicitudesEnviadas from "../components/SolicitudesEnviadas/SolicitudesEn
 import {borrarSolicitudPorID, obtenerSolicitudesPorCliente} from "../services/solicitudes";
 import ConfirmationModal from "../components/ConfirmarModal/ConfirmarModal";
 import { useNavigate } from "react-router-dom";
+import ServiciosActivos from "../components/ServiciosActivos/ServiciosActivos";
 
 // Componente estilizado para los ítems del perfil
 const ProfileItem = styled(Box)(({ theme }) => ({
@@ -339,17 +340,20 @@ const MiPerfil = () => {
                     </IconButton>
                   </ProfileItem>
                 </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <ProfileItem>
-                    <Pets color="primary" sx={{ mr: 2 }} />
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">Mascota</Typography>
-                      <Typography>{usuario.id_mascota || 'No asignada'}</Typography>
-                    </Box>
-                  </ProfileItem>
-                </Grid>
-                
+                {
+                  user.rol == "CLIENTE" ?? 
+                  (
+                    <Grid item xs={12} sm={6}>
+                    <ProfileItem>
+                      <Pets color="primary" sx={{ mr: 2 }} />
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Mascota</Typography>
+                        <Typography>{usuario.id_mascota || 'No asignada'}</Typography>
+                      </Box>
+                    </ProfileItem>
+                  </Grid>
+                  )
+                }
               </Grid>
             </Paper>
           </Grid>
@@ -358,12 +362,26 @@ const MiPerfil = () => {
         <Typography align="center" sx={{ mt: 4 }}>No se encontraron datos del usuario</Typography>
       )}
 
-      
-      <SolicitudesEnviadas 
-        solicitudes={solicitudes} 
-        loading={loadingSolicitudes}
-        onDeleteSolicitud={handleDeleteSolicitud}
-      />
+      <Grid
+      sx ={{
+        marginTop: '20px'
+      }}
+      >
+
+        {user.rol == "CLIENTE" ?
+          (
+          <SolicitudesEnviadas 
+            solicitudes={solicitudes} 
+            loading={loadingSolicitudes}
+            onDeleteSolicitud={handleDeleteSolicitud}
+          />
+          ) : (
+            <ServiciosActivos serviciosActivos={user.servicios}/>
+          )
+        }
+
+      </Grid>
+
 
       <Snackbar
         open={deleteSuccess}
