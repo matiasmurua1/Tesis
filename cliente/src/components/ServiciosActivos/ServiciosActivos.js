@@ -3,15 +3,10 @@ import {
   Box,
   Typography,
   Checkbox,
-  FormControlLabel,
   Paper,
   CircularProgress,
-  Button,
-  Snackbar,
-  Alert
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-
 import { obtenerServicios } from '../../services/servicios';
 
 
@@ -39,90 +34,23 @@ const ServicioItem = styled(Box)(({ theme }) => ({
 const ServiciosActivos = ({ serviciosActivos, userId }) => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [modified, setModified] = useState(false);
-  const [initialState, setInitialState] = useState([]);
   
 
-const fetchServicios = async () => {
-    try {
-        setLoading(true);
-        const data = await obtenerServicios();
-        setServicios(data || []);
-        setLoading(false);
-    } catch (error) {
-        setError('Error al cargar los servicios');
-        setLoading(false);
-    } 
-    
-        
-    console.log( "serviciosActivos", serviciosActivos)
-    console.log( "setServicios", servicios)
-};
-
-
-useEffect(() => {
-    fetchServicios();
-}, []);
-
-
-  // Manejar cambio de checkbox
-  const handleToggleServicio = (index) => {
-    const updatedServicios = [...servicios];
-    updatedServicios[index].activo = !updatedServicios[index].activo;
-    setServicios(updatedServicios);
-    setModified(true);
+  const fetchServicios = async () => {
+      try {
+          setLoading(true);
+          const data = await obtenerServicios();
+          setServicios(data || []);
+          setLoading(false);
+      } catch (error) {
+          setLoading(false);
+      } 
   };
 
-  // Guardar cambios
-  const guardarCambios = async () => {
-    try {
-      setLoading(true);
-      // Preparar datos para enviar
-      const serviciosActualizados = servicios.map(servicio => ({
-        id: servicio.id,
-        activo: servicio.activo
-      }));
+  useEffect(() => {
+      fetchServicios();
+  }, []);
 
-      // Llamar al endpoint de modificación
-      const response = await fetch('/api/fetchModificarUsuario', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          servicios: serviciosActualizados
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al guardar los cambios');
-      }
-
-      setSuccess(true);
-      setModified(false);
-      // Actualizar estado inicial
-      setInitialState(servicios.map(servicio => servicio.activo));
-    } catch (err) {
-      setError('Error al guardar los cambios');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Verificar si hay cambios
-  const hasChanges = () => {
-    return servicios.some((servicio, index) => 
-      servicio.activo !== initialState[index]
-    );
-  };
-
-  const handleCloseSnackbar = () => {
-    setError(null);
-    setSuccess(false);
-  };
 
   return (
     <ServiciosContainer elevation={3}>
@@ -141,54 +69,18 @@ useEffect(() => {
               <ServicioItem key={servicio.id}>
                 <Checkbox
                     // checked={serviciosActivos.includes(servicio.id) }
-                    // checked={serviciosActivos == servicio.id ? true : false}
-                    onChange={() => handleToggleServicio(index)}
+                    checked={serviciosActivos == servicio.id ? true : false}
                     color="primary"
-                    disabled={loading}
+                    disabled={serviciosActivos == servicio.id ? false : true}
                 />
                 <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
                     {servicio.nombre}
-                    {servicio.id}
                 </Typography>
               </ServicioItem>
             ))}
           </Box>
-
-          <Box display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={guardarCambios}
-              disabled={!hasChanges() || loading}
-              startIcon={loading ? <CircularProgress size={20} /> : null}
-              sx={{
-                borderRadius: '8px',
-                textTransform: 'none',
-                padding: '8px 20px',
-                fontWeight: 500,
-              }}
-            >
-              Guardar Cambios
-            </Button>
-          </Box>
         </>
       )}
-
-      {/* Notificaciones */}
-      <Snackbar
-        open={error !== null || success}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={success ? 'success' : 'error'}
-          sx={{ width: '100%' }}
-        >
-          {success ? 'Cambios guardados exitosamente!' : error}
-        </Alert>
-      </Snackbar>
     </ServiciosContainer>
   );
 };

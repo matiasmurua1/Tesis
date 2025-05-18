@@ -62,12 +62,12 @@ const crearUsuarioCliente = async (usuarioCliente) => {
 // Actualizar un usuario cliente por ID
 const actualizarUsuarioCliente = async (id, usuarioCliente) => {
     const connection = await getConnection();
-    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
+    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_servicio } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
     try {
         const result = await connection.query(
-            'UPDATE usuario_cliente SET nombre = ?, contrasena = ?, dni_cuit = ?, telefono = ?, direccion = ?, id_mascota = ?, email = ? WHERE id = ?',
-            [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id]);
-        return result.affectedRows; // Devuelve el número de filas actualizadas
+            'UPDATE usuario_cliente SET nombre = ?, contrasena = ?, dni_cuit = ?, telefono = ?, direccion = ?, id_mascota = ?, email = ?, id_servicio = ? WHERE id = ?',
+            [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_servicio,id]);
+        return result.affectedRows; 
     } catch (error) {
         console.error('Error al actualizar el usuario cliente:', error);
         throw error;

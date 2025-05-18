@@ -42,7 +42,7 @@ const ProfileItem = styled(Box)(({ theme }) => ({
 
 const MiPerfil = () => {
   const [usuario, setUsuario] = useState(null);
-  const { user, logout } = useAuth();
+  const { user, logout, modificarServicioUsuario} = useAuth();
   const navigate = useNavigate();
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -54,6 +54,7 @@ const MiPerfil = () => {
     telefono: "",
     dni_cuit: "",
     contrasena: "",
+    id_servicio: "",
   });
 
   const [solicitudes, setSolicitudes] = useState([]);
@@ -77,6 +78,7 @@ const MiPerfil = () => {
         dni_cuit: usuario.dni_cuit || "",
         contrasena: "",
         id_mascota: usuario.id_mascota || "",
+        id_servicio: usuario.id_servicio || "",
       });
       setLoading(false);
     }
@@ -139,6 +141,7 @@ const MiPerfil = () => {
   const handleUpdate = async () => {
     try {
       await modificarUsuarioClientePorID(user.id, formData);
+      modificarServicioUsuario(formData)
       setOpenModal(false);
       fetchUsuario();
     } catch (error) {
@@ -376,7 +379,7 @@ const MiPerfil = () => {
             onDeleteSolicitud={handleDeleteSolicitud}
           />
           ) : (
-            <ServiciosActivos serviciosActivos={user.servicios}/>
+            <ServiciosActivos serviciosActivos={user.id_servicio}/>
           )
         }
 
@@ -408,6 +411,7 @@ const MiPerfil = () => {
         onSave={handleUpdate}
         mostrarContrasena={mostrarContrasena}
         toggleMostrarContrasena={toggleMostrarContrasena}
+        rol={user.rol}
       />
       
     </Container>

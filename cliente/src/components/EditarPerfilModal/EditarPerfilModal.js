@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -8,9 +8,13 @@ import {
   TextField,
   IconButton,
   InputAdornment,
+  Select,
+  MenuItem,
   Grid
 } from "@mui/material";
 import { Visibility, VisibilityOff, Edit } from "@mui/icons-material";
+import { obtenerServicios } from '../../services/servicios';
+
 
 const EditarPerfilModal = ({
   open,
@@ -21,6 +25,27 @@ const EditarPerfilModal = ({
   mostrarContrasena,
   toggleMostrarContrasena
 }) => {
+  const [servicios, setServicios] = useState([]);
+  
+  const [loading, setLoading] = useState(true);
+
+  const fetchServicios = async () => {
+      try {
+          setLoading(true);
+          const data = await obtenerServicios();
+          setServicios(data || []);
+          setLoading(false);
+      } catch (error) {
+          setLoading(false);
+      } 
+  };
+
+
+
+  useEffect(() => {
+      fetchServicios();
+  }, []);
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ 
@@ -113,6 +138,28 @@ const EditarPerfilModal = ({
               }}
             />
           </Grid>
+
+          <Grid item xs={12}>
+           
+            <Select
+              fullWidth 
+              margin="normal" 
+              type="text" 
+              label="Servicio" 
+              name="id_servicio" 
+              value={formData.id_servicio} 
+              onChange={onFormChange}
+              variant="outlined"
+            > 
+            {servicios.map((servicio, index) => (
+                <MenuItem value={servicio.id} key={servicio.id}>
+                  {servicio.nombre}
+                </MenuItem>
+            ))
+            }
+            </Select>
+          </Grid>
+
         </Grid>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
