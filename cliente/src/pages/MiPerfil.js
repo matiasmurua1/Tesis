@@ -27,6 +27,8 @@ import {borrarSolicitudPorID, obtenerSolicitudesPorCliente} from "../services/so
 import ConfirmationModal from "../components/ConfirmarModal/ConfirmarModal";
 import { useNavigate } from "react-router-dom";
 import ServiciosActivos from "../components/ServiciosActivos/ServiciosActivos";
+import MascotaCard from "../components/CardMascota/CardMascota";
+import {obtenerMascotaPorIdUsuario} from "../services/mascotas";
 
 // Componente estilizado para los ítems del perfil
 const ProfileItem = styled(Box)(({ theme }) => ({
@@ -62,6 +64,8 @@ const MiPerfil = () => {
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [mascota , setMascota] = useState([])
+
 
 
   const toggleMostrarContrasena = () => {
@@ -100,6 +104,23 @@ const MiPerfil = () => {
     }
   }
 
+  const fetchMascotas = async () => {
+    if (!user || !user.id) {
+      console.error("No hay un usuario autenticado.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = await obtenerMascotaPorIdUsuario(user.id);
+      setMascota(data[0] || {});
+      console.log(data)
+    } catch (error) {
+      // console.error("Error al obtener la mascota del cliente:", error);
+      setLoading(false);
+    }
+  }
+
   const fetchSolicitudes = async () => {
     try {
       setLoadingSolicitudes(true);
@@ -132,6 +153,7 @@ const MiPerfil = () => {
   useEffect(() => {
     fetchUsuario();
     fetchSolicitudes();
+    fetchMascotas()
   }, [user]);
 
   const handleChange = (e) => {
@@ -216,58 +238,81 @@ const MiPerfil = () => {
           <CircularProgress size={60} thickness={4} />
         </Box>
       ) : usuario ? (
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ 
-              p: 3, 
-              borderRadius: 3, 
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)'
-            }}>
-              <Avatar sx={{ 
-                width: 120, 
-                height: 120, 
-                fontSize: 48, 
-                mb: 3,
-                bgcolor: 'primary.main'
+        <Grid container  gap={1} display='flex' justifyContent='space-between'>
+          {/* columna 1 */}
+          <Grid item xs={12} md={5} >
+            <Grid item xs={12} >
+              <Paper elevation={3} sx={{ 
+                p: 3, 
+                borderRadius: 3, 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)'
               }}>
-                {getInitials(usuario.nombre)}
-              </Avatar>
-              
-              <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-                {usuario.nombre}
-              </Typography>
-              
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                {usuario.email}
-              </Typography>
-              
-              <Button 
-                variant="contained" 
-                startIcon={<Edit />}
-                onClick={() => setOpenModal(true)}
-                fullWidth
-                sx={{ mb: 2 }}
-              >
-                Editar Perfil
-              </Button>
-              
-              <Button 
-                variant="outlined" 
-                color="error"
-                fullWidth
-                onClick={() => setOpenDeleteModal(true)}
-              >
-                Dar de baja cuenta
-              </Button>
-            </Paper>
+                <Avatar sx={{ 
+                  width: 120, 
+                  height: 120, 
+                  fontSize: 48, 
+                  mb: 3,
+                  bgcolor: 'primary.main'
+                }}>
+                  {getInitials(usuario.nombre)}
+                </Avatar>
+                
+                <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+                  {usuario.nombre}
+                </Typography>
+                
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  {usuario.email}
+                </Typography>
+                
+                <Button 
+                  variant="contained" 
+                  startIcon={<Edit />}
+                  onClick={() => setOpenModal(true)}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                >
+                  Editar Perfil
+                </Button>
+                
+                <Button 
+                  variant="outlined" 
+                  color="error"
+                  fullWidth
+                  onClick={() => setOpenDeleteModal(true)}
+                >
+                  Dar de baja cuenta
+                </Button>
+              </Paper>
+            </Grid>
+
+            {
+            user.rol == "CLIENTE" ?
+                (
+                    <Grid item xs={12}  style={{marginTop: "20px"}}>
+                      <MascotaCard 
+                        mascota={mascota} 
+                      />
+                    {/* <ProfileItem>
+                      <Pets color="primary" sx={{ mr: 2 }} />
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">Mascota</Typography>
+                        <Typography>{usuario.id_mascota || 'No asignada'}</Typography>
+                      </Box>
+                    </ProfileItem> */}
+                  </Grid>
+                ) : null
+          }
           </Grid>
+
           
-          <Grid item xs={12} md={8}>
+          {/* columna 2 */}
+          <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 3, borderRadius: 3 }}>
               <Typography variant="h6" sx={{ 
                 fontWeight: 600, 
@@ -292,7 +337,7 @@ const MiPerfil = () => {
                   </ProfileItem>
                 </Grid>
                 
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={12}>
                   <ProfileItem>
                     <Phone color="primary" sx={{ mr: 2 }} />
                     <Box>
@@ -323,7 +368,7 @@ const MiPerfil = () => {
                 </Grid>
                 
                 
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={12}>
                   <ProfileItem sx={{ 
                     cursor: 'pointer',
                     position: 'relative'
@@ -343,27 +388,19 @@ const MiPerfil = () => {
                     </IconButton>
                   </ProfileItem>
                 </Grid>
-                {
-                  user.rol == "CLIENTE" ?? 
-                  (
-                    <Grid item xs={12} sm={6}>
-                    <ProfileItem>
-                      <Pets color="primary" sx={{ mr: 2 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">Mascota</Typography>
-                        <Typography>{usuario.id_mascota || 'No asignada'}</Typography>
-                      </Box>
-                    </ProfileItem>
-                  </Grid>
-                  )
-                }
+                
               </Grid>
             </Paper>
           </Grid>
+
+          
         </Grid>
       ) : (
         <Typography align="center" sx={{ mt: 4 }}>No se encontraron datos del usuario</Typography>
       )}
+
+
+            
 
       <Grid
       sx ={{

@@ -12,6 +12,15 @@ const getMascotas = async (req, res) => {
   }
 };
 
+const getMascotasPorUsuario = async (req, res) => {
+  try {
+    const mascotas = await mascotasModelo.getMascotaByUserId(req.params.id); 
+    res.json(mascotas);  
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener mascotas' });
+  }
+};
+
 // Controlador para crear un nuevo servicio
 const createMascotas = async (req, res) => {
   try {
@@ -57,5 +66,6 @@ module.exports = {
     getMascotas,
     createMascotas,
     updateMascota,
-    deleteMascota
+    deleteMascota,
+    getMascotasPorUsuario
 };
