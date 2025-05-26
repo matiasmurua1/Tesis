@@ -30,12 +30,16 @@ const getSolicitudesServicioPorCliente = async (idUsuarioCliente) => {
 // Crear una nueva solicitud de servicio
 const postSolicitudServicio = async (solicitud) => {
     const connection = await getConnection();
+    console.log("ssssssssss:" , solicitud)
+
     const { fecha_hora, id_usuario_cliente, id_servicio, id_usuario_empleador, estado } = solicitud;
     try {
         const result = await connection.query(
             'INSERT INTO solicitud_servicio (fecha_hora, id_usuario_cliente, id_servicio, id_usuario_empleador, estado) VALUES (?, ?, ?, ?, ?)',
             [fecha_hora, id_usuario_cliente, id_servicio, id_usuario_empleador, estado]
         );
+    console.log("sssssssssaaaaaaaaaas:" , result)
+
         return result.insertId; // Devuelve el ID de la solicitud insertada
     } catch (error) {
         console.error('Error al insertar la solicitud de servicio:', error);

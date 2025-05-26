@@ -14,6 +14,25 @@ export const obtenerSolicitudesPorCliente = async (id) => {
   }
 };
 
+export const enviarSolicitudes = async (body) => {
+  try {
+    const response = await fetch(`${API_URL}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw new Error("Error al enviar solicitud");
+    }
+    const data = await response.json();
+    return data; // Devuelve los datos del backend
+  } catch (error) {
+    console.error("Error al enviar solicitud", error);
+    throw error;
+  }
+};
+
+
 export const borrarSolicitudPorID = async (id) => {
   try {
     const response = await fetch(`${API_URL}/${id}`, {

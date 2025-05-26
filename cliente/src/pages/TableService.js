@@ -13,7 +13,6 @@ import CustomModal from '../components/CustomModal/CustomModal';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { mockLocales } from '../utils/mockServices';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { getFecha } from '../utils/utils';
@@ -22,22 +21,61 @@ import 'dayjs/locale/es';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import {obtenerUsuariosEmpleadores} from '../services/administrarUsuario'
+import defaultImg from '../assets/Home/defaultImg.jpeg'
+import {obtenerServicios} from '../services/servicios'
+import { enviarSolicitudes } from '../services/solicitudes';
+import { useAuth } from "../context/usuarioContexto";
+
 
 export default function TableServices() {
-    const [locales, setLocales] = useState([])
+    
+    const { user } = useAuth();
     const { service } = useParams();
     const [modalTurno, setModalTurno] = useState(false);
     const [fechaTurno, setFechaTurno] = useState(dayjs(getFecha()));
     const [solicitudTurno, setSolicitudTurno] = useState("")
     const [modalMsg, setAbrirModalMsg] = useState(false)
     const [msg, setMsg] = useState("")
+    const [empleadores, setEmpleadores] = useState([])
 
-    const fetchFormulario = () => {
+    const [servicioSeleccionado, setServicioSeleccionado] = useState()
+    
+    useEffect(() => {
+        fetchServicios();
+    }, []);
+
+    const fetchServicios = async () => {
+        try {
+        const data = await obtenerServicios();
+
+        setServicioSeleccionado(data.filter(servicio => servicio.id == service)[0]);
+        } catch (error) {
+        console.error("Error al obtener los servicios:", error);
+        } 
+    };
+    
+    
+    useEffect(() => {
+        fetchEmpledores();
+    }, []);
+
+    const fetchEmpledores = async () => {
+        try {
+        const data = await obtenerUsuariosEmpleadores();
+        setEmpleadores(data.filter(empleador => empleador.id_servicio == service));
+        } catch (error) {
+        console.error("Error al obtener los empleadores:", error);
+        } 
+    };
+
+    const fetchFormulario = (empleador_id) => {
         try {
             setSolicitudTurno(fechaTurno.toISOString())
+
+
             setMsg("Alta de Turno exitosa")
             setAbrirModalMsg(!modalMsg)
-
             console.log("fechaTurno", fechaTurno)
         } catch (error) {
             setMsg("Alta de Turno fallida")
@@ -46,6 +84,22 @@ export default function TableServices() {
         
         console.log("solicitudTurno", dayjs(fechaTurno))
     }
+
+    const fetchEnviarSolicitudes = async (empleador_id) => {
+        try {
+        const data = await enviarSolicitudes({
+            fecha_hora: fechaTurno,
+            id_usuario_cliente: user.id,
+            id_servicio: service,
+            id_usuario_empleador: empleador_id,
+            estado: "pendiente"
+        });
+        setMsg(data.mensaje)
+
+        } catch (error) {
+        console.error("Error al enviar la solicitud:", error);
+        }
+    };
 
     const abrirModalTurno = () => {
         setModalTurno(!modalTurno)
@@ -56,8 +110,6 @@ export default function TableServices() {
     }
 
     useEffect(() => {
-        setLocales(mockLocales)
-        console.log("asda", getFecha())
         setFechaTurno(dayjs.utc(getFecha(), 'DD/MM/YYYY'));
     }, []);
 
@@ -65,7 +117,7 @@ export default function TableServices() {
         return (
             <Grid container size={12} justifyContent="center" spacing={2}>
                 {
-                    msg === "Alta de Turno exitosa"
+                    msg === "Alta de turno exitosa"
                         ?
                         <Grid size={12} display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
                             <Typography variant='body1'>Se envio la solicitud de tu turno para el {dayjs(solicitudTurno).format('lll')}</Typography>
@@ -74,7 +126,7 @@ export default function TableServices() {
                         :
                         <Grid size={12} display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
                             <Typography variant='body1'>No se pudo enviar la solicitud de turno, intente ingresar otro horario</Typography>
-                            <CancelIcon sx={{ color: "green", fontSize: "60px"}}></CancelIcon>
+                            <CancelIcon sx={{ color: "red", fontSize: "60px"}}></CancelIcon>
                         </Grid>
                 }
             </Grid>
@@ -111,10 +163,11 @@ export default function TableServices() {
     }
 
     return (
-        <Grid container display='flex' justifyContent="center" alignItems="center" spacing={5}>
+        <Grid container display='flex' justifyContent="center" alignItems="start" spacing={5}>
             <Grid size={12} display='flex' justifyContent="center" sx={{ marginTop: 5 }}>
                 <Typography variant='h3'>
-                    {service.charAt(0).toUpperCase() + service.slice(1)}
+                    {servicioSeleccionado?.nombre}
+                    {/* {servicioSeleccionado.nombre.charAt(0).toUpperCase() + servicioSeleccionado.slice(1)} */}
                 </Typography>
             </Grid>
             <Grid size={2} sx={{ height: '550px', borderRight: 'solid #474963 1px' }}>
@@ -144,45 +197,46 @@ export default function TableServices() {
                         Ubicaciones
                     </Typography>
                 </Grid>
-                {locales.map((local, index) => (
+                {empleadores.map((local, index) => (
                     <Grid key={index} container size={12} sx={{ height: '160px', border: ' solid #474963 1px', borderRadius: '10px', boxShadow: '4px 4px 4px 2px rgba(0, 0, 0, 0.1)' }} justifyContent='space-evenly'>
                         <Grid >
                             <img
-                                src={local.img}
+                                src={local.img || defaultImg}
                                 alt='Peluqueria 1'
                                 style={{ height: '145px', width: '200px', borderRadius: '10px', margin: '6px' }}
                             />
                         </Grid>
-                        <Grid size={6} padding={1}>
+                        <Grid size={5} padding={1}>
                             <Typography variant='h6'>
-                                {local.name}
+                                {local.nombre}
                             </Typography>
                             <Typography variant='body1' display="flex" alignItems="center">
                                 <LocationOnIcon fontSize='small' sx={{ marginRight: '4px' }}></LocationOnIcon>
-                                {local.location}
+                                {local.direccion}
                             </Typography>
                             <Typography variant='body1' display="flex" alignItems="center">
                                 <PhoneEnabledIcon fontSize='small' sx={{ marginRight: '4px' }}></PhoneEnabledIcon>
-                                {local.tel}
+                                {local.telefono}
                             </Typography>
-                            <Typography variant='body1' display="flex" alignItems="center">
+                            {/* <Typography variant='body1' display="flex" alignItems="center">
                                 <InstagramIcon fontSize='small' sx={{ marginRight: '4px' }}></InstagramIcon>
                                 {local.ig}
-                            </Typography>
+                            </Typography> */}
                         </Grid>
                         <Grid size={3} container justifyContent='center' alignContent='center'>
                             <Grid >
-                                <CustomStars calification={local.calification} ></CustomStars>
+                                <CustomStars calification={local.calificacion || '3' } ></CustomStars>
                             </Grid>
                             <Grid>
                                 <Button variant="outlined" color="primary" onClick={abrirModalTurno}>Solicitar Turno</Button>
                             </Grid>
                         </Grid>
+                        <CustomModal abierto={modalTurno} abrirModal={abrirModalTurno} handler={() => fetchEnviarSolicitudes(local.id)} title="Alta de turno" children={<FormSolicitudServicio />}></CustomModal>
+                        <CustomModal abierto={modalMsg} abrirModal={abrirModalMsg} handler={() => fetchEnviarSolicitudes(local.id)} title={msg} children={<MensajeExitoso />}></CustomModal>
                     </Grid>
                 ))}
             </Grid>
-            <CustomModal abierto={modalTurno} abrirModal={abrirModalTurno} handler={fetchFormulario} title="Alta de Turno" children={<FormSolicitudServicio />}></CustomModal>
-            <CustomModal abierto={modalMsg} abrirModal={abrirModalMsg} handler={fetchFormulario} title={msg} children={<MensajeExitoso />}></CustomModal>
+            
         </Grid>
     )
 }

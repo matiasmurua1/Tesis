@@ -22,6 +22,16 @@ const getUsuariosClientes = async (req, res) => {
     }
 };
 
+const getUsuariosEmpleadores = async (req, res) => {
+    try {
+        const usuariosClientes = await usuarioClienteModelo.mostrarUsuariosEmpleadores();
+        res.status(200).json(usuariosClientes);
+    } catch (error) {
+        console.error('Error al obtener los usuarios empleadores:', error);
+        res.status(500).json({ mensaje: 'Error al obtener los usuarios empleadores' });
+    }
+};
+
 // Controlador para crear un nuevo usuario cliente
 const postUsuarioCliente = async (req, res) => {
     let { nombre, contrasena, dni_cuit, telefono, direccion, email, id_rol, id_servicio, esEmpleador } = req.body;
@@ -105,5 +115,6 @@ module.exports = {
     postUsuarioCliente,
     putUsuarioCliente,
     deleteUsuarioCliente,
-    getUsuarioClientePorID
+    getUsuarioClientePorID,
+    getUsuariosEmpleadores
 };

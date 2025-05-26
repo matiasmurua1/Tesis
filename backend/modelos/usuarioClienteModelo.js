@@ -43,14 +43,24 @@ const mostrarUsuariosClientes = async () => {
     }
 };
 
+const mostrarUsuariosEmpleadores = async () => {
+    const connection = await getConnection();
+    try {
+        const usuariosClientes = await connection.query('SELECT * FROM usuario_cliente WHERE id_rol = 1');
+        return usuariosClientes;
+    } catch (error) {
+        console.error('Error al obtener usuarios clientes:', error);
+        throw error;
+    }
+};
+
 // Crear un nuevo usuario cliente
 const crearUsuarioCliente = async (usuarioCliente) => {
     const connection = await getConnection();
-    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
+    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, calificacion } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
     try {
         const result = await connection.query(
-            'INSERT INTO usuario_cliente (nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio) VALUES (?, ?, ?, ?, ?, ?,?,?,?)',
-            [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio]
+            'INSERT INTO usuario_cliente (nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, calificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         );
         return result.insertId; // Devuelve el ID del usuario cliente insertado
     } catch (error) {
@@ -62,11 +72,11 @@ const crearUsuarioCliente = async (usuarioCliente) => {
 // Actualizar un usuario cliente por ID
 const actualizarUsuarioCliente = async (id, usuarioCliente) => {
     const connection = await getConnection();
-    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_servicio } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
+    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_servicio, calificacion } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
     try {
         const result = await connection.query(
-            'UPDATE usuario_cliente SET nombre = ?, contrasena = ?, dni_cuit = ?, telefono = ?, direccion = ?, id_mascota = ?, email = ?, id_servicio = ? WHERE id = ?',
-            [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_servicio,id]);
+            'UPDATE usuario_cliente SET nombre = ?, contrasena = ?, dni_cuit = ?, telefono = ?, direccion = ?, id_mascota = ?, email = ?, id_servicio = ?, calificacion = ? WHERE id = ?',
+            [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_servicio,calificacion,id]);
         return result.affectedRows; 
     } catch (error) {
         console.error('Error al actualizar el usuario cliente:', error);
@@ -90,5 +100,5 @@ const eliminarUsuarioCliente = async (idUsuarioCliente) => {
 };
 
 module.exports = {
-    mostrarUsuariosClientes, crearUsuarioCliente, actualizarUsuarioCliente, eliminarUsuarioCliente, mostrarUsuarioClientePorID, mostrarUsuarioClientePorEmail, mostrarUsuarioClientePorDNI
+    mostrarUsuariosClientes, crearUsuarioCliente, actualizarUsuarioCliente, mostrarUsuariosEmpleadores, eliminarUsuarioCliente, mostrarUsuarioClientePorID, mostrarUsuarioClientePorEmail, mostrarUsuarioClientePorDNI
 };
