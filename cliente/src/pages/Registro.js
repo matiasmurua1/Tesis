@@ -14,7 +14,6 @@ import {
   TextField,
   Typography,
   Avatar,
-  Paper,
   Snackbar,
   Grid2 as Grid
 } from '@mui/material';

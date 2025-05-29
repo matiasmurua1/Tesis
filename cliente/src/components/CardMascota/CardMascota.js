@@ -6,7 +6,6 @@ import {
   Avatar,
   Divider,
   Grid,
-  Button,
   IconButton
 } from '@mui/material';
 import PetsIcon from '@mui/icons-material/Pets';

@@ -19,7 +19,7 @@ const style = {
   p: 4,
 };
 
-export default function CustomModal({abierto, abrirModal, handler, title, children}) {
+export default function CustomModal({abierto, abrirModal, handler, title, children, confirmarBtn = true}) {
     const cerrarModal = () => {
         title === "Alta de Turno" ? abrirModal(true) : abrirModal(false)
     };
@@ -44,7 +44,11 @@ export default function CustomModal({abierto, abrirModal, handler, title, childr
                 </Grid>
                 {children}
                 <Grid size={12} display="flex" justifyContent="center" marginTop={3}>
+                  {  confirmarBtn ?
+                    (
                     <Button onClick={confirmacionTurno}>Confirmar</Button>
+                    ) : null
+                  }
                 </Grid>
           </Grid>
         </Box>

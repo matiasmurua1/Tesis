@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import { useAuth } from "../context/usuarioContexto";
 export default function Login() {
-  const { user, login } = useAuth();
+  const { login } = useAuth();
   const [error, setError] = useState(null);
   const [usuario, setUsuario] = useState("");
   const [contrasena, setContrasena] = useState("");

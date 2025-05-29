@@ -1,5 +1,17 @@
 const { getConnection } = require('../src/configuracion/conexionBaseDatos');
 
+function formatearFechaLocal(datetimeStr) {
+  const date = new Date(datetimeStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 // Obtener todas las solicitudes de servicio
 const getSolicitudesServicio = async () => {
     const connection = await getConnection();
@@ -27,20 +39,34 @@ const getSolicitudesServicioPorCliente = async (idUsuarioCliente) => {
     }
 };
 
+// Obtener todas las solicitudes de servicio
+const getSolicitudServicioPorID = async (id) => {
+    const connection = await getConnection();
+    try {
+        const solicitud = await connection.query('SELECT * FROM solicitud_servicio WHERE id = ?', [id]);
+        if (solicitud.length == 0) { 
+            return {}; // Devuelve un objeto vacío si no hay solicitudes
+            }
+        return solicitud[0];
+    } catch (error) {
+        console.error('Error al obtener las solicitudes de servicio:', error);
+        throw error;
+    }
+};
+
 // Crear una nueva solicitud de servicio
 const postSolicitudServicio = async (solicitud) => {
     const connection = await getConnection();
-    console.log("ssssssssss:" , solicitud)
-
-    const { fecha_hora, id_usuario_cliente, id_servicio, id_usuario_empleador, estado } = solicitud;
+    const fecha = formatearFechaLocal(solicitud.fecha_hora) 
+    
+    const { id_usuario_cliente, id_servicio, id_usuario_empleador, estado } = solicitud;
     try {
         const result = await connection.query(
             'INSERT INTO solicitud_servicio (fecha_hora, id_usuario_cliente, id_servicio, id_usuario_empleador, estado) VALUES (?, ?, ?, ?, ?)',
-            [fecha_hora, id_usuario_cliente, id_servicio, id_usuario_empleador, estado]
+            [fecha, id_usuario_cliente, id_servicio, id_usuario_empleador, estado]
         );
-    console.log("sssssssssaaaaaaaaaas:" , result)
-
-        return result.insertId; // Devuelve el ID de la solicitud insertada
+    console.log("result:" , result)
+        return result;
     } catch (error) {
         console.error('Error al insertar la solicitud de servicio:', error);
         throw error;
@@ -83,5 +109,5 @@ module.exports = {
     postSolicitudServicio,
     putSolicitudServicio,
     deleteSolicitudServicio,
-    getSolicitudesServicioPorCliente
+    getSolicitudesServicioPorCliente,getSolicitudServicioPorID
 };

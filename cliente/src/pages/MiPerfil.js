@@ -10,11 +10,6 @@ import {
   Avatar,
   Divider,
   CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   Snackbar
 } from "@mui/material";
 import Grid from "@mui/material/Grid";

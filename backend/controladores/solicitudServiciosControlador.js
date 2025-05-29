@@ -23,11 +23,26 @@ const getSolicitudesServicioPorCliente = async (req, res) => {
   }
 };
 
+const getSolicitudServicioPorID = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const solicitud = await solicitudServicioModelo.getSolicitudServicioPorID(id); 
+    res.json(solicitud);
+  } catch (error) {
+    console.error('Error al obtener solicitudes de servicio:', error);
+    res.status(500).json({ message: 'Error al obtener solicitudes de servicio' });
+  }
+};
+
 // Controlador para crear una nueva solicitud de servicio
 const createSolicitudServicio = async (req, res) => {
   try {
     const result = await solicitudServicioModelo.postSolicitudServicio(req.body); // Llama a la función del modelo
-    res.status(201).json({ message: 'Solicitud de servicio creada con éxito', insertId: result });
+
+    const solicitud = await solicitudServicioModelo.getSolicitudServicioPorID(result.insertId)
+
+    res.status(201).json({ message: 'Solicitud de servicio creada con éxito', insertId: result.insertId, solicitud: solicitud });
+
   } catch (error) {
     console.error('Error al crear la solicitud de servicio:', error);
     res.status(500).json({ message: 'Error al crear solicitud de servicio' });
@@ -73,5 +88,5 @@ module.exports = {
   createSolicitudServicio,
   updateSolicitudServicio,
   deleteSolicitudServicio,
-  getSolicitudesServicioPorCliente
+  getSolicitudesServicioPorCliente, getSolicitudServicioPorID
 };

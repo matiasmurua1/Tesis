@@ -4,8 +4,7 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneEnabledIcon from '@mui/icons-material/PhoneEnabled';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import { Button } from '@mui/material';
+import { Button, Link} from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import CustomStars from '../components/CustomStars/CustomStars';
@@ -15,13 +14,12 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { getFecha } from '../utils/utils';
+import { getFecha, formatearFechaLocal } from '../utils/utils';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import {obtenerUsuariosEmpleadores} from '../services/administrarUsuario'
+import {obtenerUsuariosEmpleadores, obtenerUsuarioClientePorID} from '../services/administrarUsuario'
 import defaultImg from '../assets/Home/defaultImg.jpeg'
 import {obtenerServicios} from '../services/servicios'
 import { enviarSolicitudes } from '../services/solicitudes';
@@ -34,15 +32,18 @@ export default function TableServices() {
     const { service } = useParams();
     const [modalTurno, setModalTurno] = useState(false);
     const [fechaTurno, setFechaTurno] = useState(dayjs(getFecha()));
-    const [solicitudTurno, setSolicitudTurno] = useState("")
     const [modalMsg, setAbrirModalMsg] = useState(false)
     const [msg, setMsg] = useState("")
     const [empleadores, setEmpleadores] = useState([])
+    const [empleadorSolicitud, setEmpleadorSolicitud] = useState({})
+
 
     const [servicioSeleccionado, setServicioSeleccionado] = useState()
     
     useEffect(() => {
         fetchServicios();
+        fetchEmpledores();
+        setFechaTurno(dayjs.utc(getFecha(), 'DD/MM/YYYY'));
     }, []);
 
     const fetchServicios = async () => {
@@ -55,10 +56,6 @@ export default function TableServices() {
         } 
     };
     
-    
-    useEffect(() => {
-        fetchEmpledores();
-    }, []);
 
     const fetchEmpledores = async () => {
         try {
@@ -69,23 +66,9 @@ export default function TableServices() {
         } 
     };
 
-    const fetchFormulario = (empleador_id) => {
-        try {
-            setSolicitudTurno(fechaTurno.toISOString())
-
-
-            setMsg("Alta de Turno exitosa")
-            setAbrirModalMsg(!modalMsg)
-            console.log("fechaTurno", fechaTurno)
-        } catch (error) {
-            setMsg("Alta de Turno fallida")
-            setAbrirModalMsg(!modalMsg)
-        }
-        
-        console.log("solicitudTurno", dayjs(fechaTurno))
-    }
-
     const fetchEnviarSolicitudes = async (empleador_id) => {
+        setFechaTurno(formatearFechaLocal(dayjs(fechaTurno)));
+
         try {
         const data = await enviarSolicitudes({
             fecha_hora: fechaTurno,
@@ -94,7 +77,14 @@ export default function TableServices() {
             id_usuario_empleador: empleador_id,
             estado: "pendiente"
         });
-        setMsg(data.mensaje)
+        console.log("dataa: ", data)
+        setMsg(data.message)
+        setAbrirModalMsg(!modalMsg)
+        
+        const empleador = await obtenerUsuarioClientePorID(data.solicitud.id_usuario_empleador)
+        console.log("empleador: ", empleador)
+
+        setEmpleadorSolicitud(empleador[0]);
 
         } catch (error) {
         console.error("Error al enviar la solicitud:", error);
@@ -109,24 +99,37 @@ export default function TableServices() {
         setAbrirModalMsg(!modalMsg)
     }
 
-    useEffect(() => {
-        setFechaTurno(dayjs.utc(getFecha(), 'DD/MM/YYYY'));
-    }, []);
-
     function MensajeExitoso() {
         return (
             <Grid container size={12} justifyContent="center" spacing={2}>
                 {
-                    msg === "Alta de turno exitosa"
+                    msg === "Solicitud de servicio creada con éxito"
                         ?
                         <Grid size={12} display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
-                            <Typography variant='body1'>Se envio la solicitud de tu turno para el {dayjs(solicitudTurno).format('lll')}</Typography>
-                            <CheckCircleIcon sx={{ color: "green", fontSize: "60px", marginTop:'15px'}}></CheckCircleIcon>
+                            <Typography variant='body2'>Turno para el dia 
+                            </Typography>
+                            <Typography variant='subtitle2' sx={{ border: '1px solid', margin: '5px', padding: "8px", borderRadius: "3px"}}> 
+                                {fechaTurno} 
+                            </Typography>
+                            <Typography variant='body2'> 
+                                con 
+                            </Typography>
+                            <Typography variant='subtitle2' sx={{ border: '1px solid', margin: '5px', padding: "8px", borderRadius: "3px"}}> 
+                                {empleadorSolicitud.nombre} 
+                            </Typography>
+                            
+                            <CheckCircleIcon sx={{ color: "green", fontSize: "30px", marginTop:'10px'}}></CheckCircleIcon>
+                            
+                            <Typography variant='body2'> 
+                                <Link href="/mi-perfil" sx={{ textDecoration: "none", color: "#7079f0" }}>
+                                    Ver listado de solicitudes de turnos
+                                </Link>
+                            </Typography>
                         </Grid>
                         :
                         <Grid size={12} display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
                             <Typography variant='body1'>No se pudo enviar la solicitud de turno, intente ingresar otro horario</Typography>
-                            <CancelIcon sx={{ color: "red", fontSize: "60px"}}></CancelIcon>
+                            <CancelIcon sx={{ color: "red", fontSize: "30px"}}></CancelIcon>
                         </Grid>
                 }
             </Grid>
@@ -167,7 +170,6 @@ export default function TableServices() {
             <Grid size={12} display='flex' justifyContent="center" sx={{ marginTop: 5 }}>
                 <Typography variant='h3'>
                     {servicioSeleccionado?.nombre}
-                    {/* {servicioSeleccionado.nombre.charAt(0).toUpperCase() + servicioSeleccionado.slice(1)} */}
                 </Typography>
             </Grid>
             <Grid size={2} sx={{ height: '550px', borderRight: 'solid #474963 1px' }}>
@@ -232,7 +234,7 @@ export default function TableServices() {
                             </Grid>
                         </Grid>
                         <CustomModal abierto={modalTurno} abrirModal={abrirModalTurno} handler={() => fetchEnviarSolicitudes(local.id)} title="Alta de turno" children={<FormSolicitudServicio />}></CustomModal>
-                        <CustomModal abierto={modalMsg} abrirModal={abrirModalMsg} handler={() => fetchEnviarSolicitudes(local.id)} title={msg} children={<MensajeExitoso />}></CustomModal>
+                        <CustomModal abierto={modalMsg} abrirModal={abrirModalMsg} handler={() => fetchEnviarSolicitudes(local.id)} title={msg} children={<MensajeExitoso />}  confirmarBtn={false}></CustomModal>
                     </Grid>
                 ))}
             </Grid>
