@@ -17,7 +17,7 @@ app.set("port", 4000);
 app.use(express.json());
 app.use(cors({
     origin: "http://localhost:3000",
-    methods: "GET,POST,PUT,DELETE",
+    methods: "GET,POST,PUT, PATCH, DELETE",
     allowedHeaders: "Content-Type,Authorization"
 }));
 // Middlewares

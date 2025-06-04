@@ -77,14 +77,12 @@ export default function TableServices() {
             id_usuario_empleador: empleador_id,
             estado: "pendiente"
         });
-        console.log("dataa: ", data)
         setMsg(data.message)
         setAbrirModalMsg(!modalMsg)
         
         const empleador = await obtenerUsuarioClientePorID(data.solicitud.id_usuario_empleador)
-        console.log("empleador: ", empleador)
 
-        setEmpleadorSolicitud(empleador[0]);
+        setEmpleadorSolicitud(empleador);
 
         } catch (error) {
         console.error("Error al enviar la solicitud:", error);

@@ -24,6 +24,20 @@ const getSolicitudesServicio = async () => {
     }
 };
 
+const getSolicitudesServicioPorEmpleador = async (id) => {
+    const connection = await getConnection();
+    try {
+        const solicitudes = await connection.query('SELECT * FROM solicitud_servicio WHERE id_usuario_empleador = ?', [id]);
+        if (solicitudes.length === 0) { // Si no hay solicitudes, devuelve un array vacío
+            return []; // Devuelve un array vacío si no hay solicitudes
+            }
+        return solicitudes;
+    } catch (error) {
+        console.error('Error al obtener las solicitudes de servicio:', error);
+        throw error;
+    }
+};
+
 // Obtener todas las solicitudes de servicio
 const getSolicitudesServicioPorCliente = async (idUsuarioCliente) => {
     const connection = await getConnection();
@@ -89,6 +103,22 @@ const putSolicitudServicio = async (id, solicitud) => {
     }
 };
 
+const editarEstadoSolicitudServicio = async (id, solicitud) => {
+    const connection = await getConnection();
+    const { estado } = solicitud;
+    try {
+        const result = await connection.query(
+            'UPDATE solicitud_servicio SET estado = ? WHERE id = ?',
+            [estado, id]
+        );
+        return result.affectedRows; // Devuelve el número de filas actualizadas
+    } catch (error) {
+        console.error('Error al actualizar la solicitud de servicio:', error);
+        throw error;
+    }
+};
+
+
 // Eliminar una solicitud de servicio por ID
 const deleteSolicitudServicio = async (idSolicitud) => {
     const connection = await getConnection();
@@ -109,5 +139,8 @@ module.exports = {
     postSolicitudServicio,
     putSolicitudServicio,
     deleteSolicitudServicio,
-    getSolicitudesServicioPorCliente,getSolicitudServicioPorID
+    getSolicitudesServicioPorCliente, 
+    getSolicitudServicioPorID,
+    getSolicitudesServicioPorEmpleador, 
+    editarEstadoSolicitudServicio
 };

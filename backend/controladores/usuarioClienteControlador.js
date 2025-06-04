@@ -4,6 +4,7 @@ const getUsuarioClientePorID = async (req, res) => {
     const { id } = req.params;
     try {
         const usuariosClientes = await usuarioClienteModelo.mostrarUsuarioClientePorID(id);
+        
         res.status(200).json(usuariosClientes);
     } catch (error) {
         console.error('Error al obtener los datos del cliente buscado:', error);

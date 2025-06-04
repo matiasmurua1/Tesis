@@ -4,8 +4,49 @@ const { getConnection } = require('../src/configuracion/conexionBaseDatos');
 const mostrarUsuarioClientePorID = async (id) => {
     const connection = await getConnection();
     try {
-        const usuariosClientes = await connection.query('SELECT * FROM usuario_cliente where id = ?', [id]);
-        return usuariosClientes;
+        const query = `
+            SELECT
+                uc.id             AS usuario_id,
+                uc.nombre         AS usuario_nombre,
+                uc.contrasena,
+                uc.dni_cuit,
+                uc.telefono,
+                uc.direccion,
+                uc.id_mascota,
+                uc.email,
+                uc.id_rol,
+                uc.id_servicio,
+                m.id              AS mascota_id,
+                m.nombre          AS mascota_nombre,
+                m.edad,
+                m.descripcion
+            FROM usuario_cliente uc
+            LEFT JOIN mascota m
+                ON uc.id_mascota = m.id
+            WHERE uc.id = ?
+        `;
+        const rows = await connection.query(query, [id]);
+        const usuariosClientes = rows[0];
+        const usuario = {
+            id: usuariosClientes.usuario_id,
+            nombre: usuariosClientes.usuario_nombre,
+            contrasena: usuariosClientes.contrasena,
+            dni_cuit: usuariosClientes.dni_cuit,
+            telefono: usuariosClientes.telefono,
+            direccion: usuariosClientes.direccion,
+            id_mascota: usuariosClientes.id_mascota,
+            email: usuariosClientes.email,
+            id_rol: usuariosClientes.id_rol,
+            id_servicio: usuariosClientes.id_servicio,
+            mascota: usuariosClientes.mascota_id ? {
+            id: usuariosClientes.mascota_id,
+            nombre: usuariosClientes.mascota_nombre,
+            tipo_mascota: usuariosClientes.tipo_mascota,
+            edad: usuariosClientes.edad,
+            descripcion: usuariosClientes.descripcion,
+            } : null,
+        };
+        return usuario;
     } catch (error) {
         console.error('Error al obtener usuarios clientes:', error);
         throw error;

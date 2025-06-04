@@ -23,6 +23,18 @@ const getSolicitudesServicioPorCliente = async (req, res) => {
   }
 };
 
+const getSolicitudesServicioPorEmpleador = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const solicitudes = await solicitudServicioModelo.getSolicitudesServicioPorEmpleador(id); 
+    res.json(solicitudes);
+  } catch (error) {
+    console.error('Error al obtener solicitudes de servicio:', error);
+    res.status(500).json({ message: 'Error al obtener solicitudes de servicio' });
+  }
+};
+
+
 const getSolicitudServicioPorID = async (req, res) => {
   const { id } = req.params;
   try {
@@ -66,6 +78,22 @@ const updateSolicitudServicio = async (req, res) => {
   }
 };
 
+const updateEstadoSolicitudServicio = async (req, res) => {
+  const { id } = req.params; // Obtén el ID de los parámetros de la solicitud
+  console.log('ID:', id, 'Body:', req.body);
+  try {
+    const result = await solicitudServicioModelo.editarEstadoSolicitudServicio(id, req.body); // Llama a la función del modelo
+    if (result > 0) {
+      res.json({ message: 'Solicitud de servicio actualizada con éxito' });
+    } else {
+      res.status(404).json({ message: 'Solicitud de servicio no encontrada' });
+    }
+  } catch (error) {
+    console.error('Error al actualizar la solicitud de servicio:', error);
+    res.status(500).json({ message: 'Error al actualizar solicitud de servicio' });
+  }
+};
+
 // Controlador para eliminar una solicitud de servicio por ID
 const deleteSolicitudServicio = async (req, res) => {
   const { id } = req.params; // Obtén el ID de los parámetros de la solicitud
@@ -88,5 +116,8 @@ module.exports = {
   createSolicitudServicio,
   updateSolicitudServicio,
   deleteSolicitudServicio,
-  getSolicitudesServicioPorCliente, getSolicitudServicioPorID
+  getSolicitudesServicioPorCliente, 
+  getSolicitudServicioPorID, 
+  getSolicitudesServicioPorEmpleador,
+  updateEstadoSolicitudServicio
 };

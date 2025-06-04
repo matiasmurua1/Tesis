@@ -66,14 +66,19 @@ export default function MenuBar() {
           </ListItemButton>
         </ListItem>
 
-        <ListItem disablePadding>
-          <ListItemButton sx={{ textAlign: "center" }}>
-            <Link href="/servicios" sx={{ textDecoration: "none", color: "inherit" }}>
-              Servicios
-            </Link>
-          </ListItemButton>
-        </ListItem>
-        
+        {
+            user?.rol == "CLIENTE" ?
+                (
+                    <ListItem disablePadding>
+                      <ListItemButton sx={{ textAlign: "center" }}>
+                        <Link href="/servicios" sx={{ textDecoration: "none", color: "inherit" }}>
+                          Servicios
+                        </Link>
+                      </ListItemButton>
+                    </ListItem>
+                ) : null 
+        }
+
         <ListItem disablePadding>
           <ListItemButton sx={{ textAlign: "center" }}>
             <Link href="/acerca-de" sx={{ textDecoration: "none", color: "inherit" }}>
@@ -148,9 +153,25 @@ export default function MenuBar() {
             <Button color="inherit" href="/" component={Link}>
               Inicio
             </Button>
-            <Button color="inherit" href="/servicios" component={Link}>
-              Servicios
-            </Button>
+
+            {
+            user?.rol == "CLIENTE" ?
+                (
+                  <Button color="inherit" href="/servicios" component={Link}>
+                    Servicios
+                  </Button>
+                ) : null 
+            }
+
+{
+            user?.rol == "EMPLEADOR" ?
+                (
+                  <Button color="inherit" href="/solicitudes" component={Link}>
+                    Solicitudes
+                  </Button>
+                ) : null 
+            }
+
             <Button color="inherit" href="/acerca-de" component={Link}>
               Acerca de
             </Button>

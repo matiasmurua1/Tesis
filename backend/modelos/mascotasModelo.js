@@ -26,11 +26,9 @@ const getMascotaById = async (id) => {
 
 // Obtener una mascota por su ID
 const getMascotaByUserId = async (id) => {
-    console.log('iddddd', id)
     const connection = await getConnection();
     try {
         const mascota = await connection.query('SELECT * FROM mascota WHERE id_usuario = ?', [id]);
-        console.log("mascota: ", mascota)
 
         return mascota; // Retorna la mascota encontrada o null si no existe
     } catch (error) {

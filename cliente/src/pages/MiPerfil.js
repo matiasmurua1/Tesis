@@ -92,7 +92,7 @@ const MiPerfil = () => {
     try {
       setLoading(true);
       const data = await obtenerUsuarioClientePorID(user.id);
-      setUsuario(data[0] || {});
+      setUsuario(data || {});
     } catch (error) {
       console.error("Error al obtener el usuario cliente:", error);
       setLoading(false);
@@ -109,9 +109,7 @@ const MiPerfil = () => {
       setLoading(true);
       const data = await obtenerMascotaPorIdUsuario(user.id);
       setMascota(data[0] || {});
-      console.log(data)
     } catch (error) {
-      // console.error("Error al obtener la mascota del cliente:", error);
       setLoading(false);
     }
   }

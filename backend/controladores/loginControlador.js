@@ -28,7 +28,8 @@ const loginUsuario = async (req, res) => {
             id: usuario.id,
             username: usuario.email,
             rol: permisos, 
-            id_servicio: usuario.id_servicio
+            id_servicio: usuario.id_servicio,
+            direccion: usuario.direccion
           }
         const token = jwt.sign(payload, "token", { expiresIn: "1h" });
         if (!usuario) {

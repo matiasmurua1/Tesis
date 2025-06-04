@@ -18,30 +18,59 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Rating, Avatar
+  Rating, Avatar,
+  IconButton,
+  Stack
 } from "@mui/material";
-import { AccessTime, Delete, Visibility, Email, Phone, Home,  Star  } from "@mui/icons-material";
+import {
+  StarBorder as StarBorderIcon,
+  Star as StarIcon,
+  Person as PersonIcon,
+  AccessTime as AccessTimeIcon
+} from '@mui/icons-material';
+import { AccessTime, Delete, Visibility, Email, Phone, Home  } from "@mui/icons-material";
 import ConfirmationModal from "../ConfirmarModal/ConfirmarModal";
 import { obtenerUsuarioClientePorID } from "../../services/administrarUsuario";
+import {mayuscPrimeraLetra} from '../../utils/utils';
+
 
 const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [selectedSolicitud, setSelectedSolicitud] = useState({});
   const [openModalEmpleador, setOpenModalEmpleador] = useState(false);
+  const [openModalClasificar, setOpenModalClasificar] = useState(false);
   const [usuarioEmpleador, setUsuarioEmpleador] = useState({});
   const [loadingEmpleador, setLoadingEmpleador] = useState(false);
   
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+
+  const handleRatingSubmit = () => {
+      fetchCalificarEmpleadores(rating);
+      setOpenModalClasificar(false);
+    };
+
+  const fetchCalificarEmpleadores = () => {
+    console.log("calificacion", rating)
+  }
+
   const handleVerEmpleador = (id) => {
-    console.log("ID del empleador:", id);
     setOpenModalEmpleador(!openModalEmpleador);
     fetchUsuario(id);
   };
+
+  const clasificarEmpleador = (id) => {
+    setOpenModalClasificar(!openModalClasificar);
+    fetchUsuario(id);
+  };
+
+  
 
   const fetchUsuario = async (id) => {
     try {
       setLoadingEmpleador(true);
       const data = await obtenerUsuarioClientePorID(id);
-      setUsuarioEmpleador(data[0] || {});
+      setUsuarioEmpleador(data || {});
     } catch (error) {
       console.error("Error al obtener el usuario cliente:", error);
       setLoadingEmpleador(false);
@@ -125,12 +154,14 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
                       
                       <TableCell align="right">
                         <Chip 
-                          label={solicitud.estado} 
+                          label={mayuscPrimeraLetra(solicitud.estado)} 
                           size="small"
                           color={
-                            solicitud.estado === "Enviada" ? "primary" : 
-                            solicitud.estado === "Aceptada" ? "success" : 
-                            solicitud.estado === "Rechazada" ? "error" : "default"
+                            solicitud.estado === "pendiente" ? "primary" : 
+                            solicitud.estado === "aceptada" ? "success" : 
+                            solicitud.estado === "en curso" ? "success" : 
+                            solicitud.estado === "finalizada" ? "success" : 
+                            solicitud.estado === "rechazada" ? "error" : "default"
                           }
                           sx={{ mb: 1 }}
                         />
@@ -140,6 +171,19 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
                       </TableCell>
                       
                       <TableCell align="right">
+                        {
+                          solicitud.estado == "finalizada" ? (
+
+                        <Button 
+                          size="small" 
+                          startIcon={<StarIcon />}
+                          onClick={() => clasificarEmpleador(solicitud.id_usuario_empleador)}
+                          sx={{ mr: 1 ,color: '#e5be01'}}
+                        >
+                          Calificar empleador
+                        </Button>
+                          ): null
+                        }
                       <Button 
                           size="small" 
                           startIcon={<Visibility />}
@@ -253,7 +297,7 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
                   value={usuarioEmpleador.rating || 0}
                   precision={0.5}
                   readOnly
-                  emptyIcon={<Star style={{ opacity: 0.55 }} fontSize="inherit" />}
+                  emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
                   sx={{ color: 'warning.main' }}
                 />
                 <Typography variant="body2" color="text.secondary">
@@ -265,7 +309,7 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
                     label="Verificado"
                     color="success"
                     size="small"
-                    icon={<Star fontSize="small" />}
+                    icon={<StarIcon fontSize="small" />}
                     sx={{ mt: 1 }}
                   />
                 )}
@@ -313,6 +357,72 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
           </>
         }
       />
+
+      <Dialog
+          open={openModalClasificar}
+          onClose={()=> {openModalClasificar(false)}}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle id="alert-dialog-title" sx={{ fontWeight: "bold" }}>
+            Calificar al empleador segun tu confirmidad
+            {
+              <Button
+                  onClick={()=> {openModalClasificar(false)}}
+                  sx={{ position: "absolute", right: 8, top: 8 }}
+                  >
+                  X
+              </Button> 
+              } 
+
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <IconButton
+                  key={star}
+                  onMouseEnter={() => setHover(star)}
+                  onMouseLeave={() => setHover(0)}
+                  onClick={() => setRating(star)}
+                  size="large"
+                >
+                  {star <= (hover || rating) ? (
+                    <StarIcon sx={{ fontSize: 40, color: '#FFD700' }} />
+                  ) : (
+                    <StarBorderIcon sx={{ fontSize: 40, color: '#BDBDBD' }} />
+                  )}
+                </IconButton>
+              ))}
+            </Box>
+            
+          </DialogContent>
+      
+          <Divider />
+      
+          <DialogActions sx={{ justifyContent: 'space-between', p: 2 }}>
+            <Button
+              variant="outlined"
+              color="error" onClick={()=> setOpenModalClasificar(false)}
+              sx={{ borderRadius: '20px', textTransform: 'none', px: 3 }}
+            >
+              Cancelar
+            </Button>
+            
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleRatingSubmit}
+              disabled={rating === 0}
+              sx={{ borderRadius: '20px', textTransform: 'none', px: 3 }}
+            >
+              Calificar
+            </Button>
+          </DialogActions>
+
+              
+        </Dialog>
     </Box>
   );
 };

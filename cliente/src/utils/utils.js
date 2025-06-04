@@ -23,3 +23,8 @@ export function formatearFechaLocal(datetimeStr) {
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
+
+
+export const mayuscPrimeraLetra = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
