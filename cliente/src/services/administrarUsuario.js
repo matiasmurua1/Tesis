@@ -44,13 +44,15 @@ export const obtenerUsuarioClientePorID = async (id) => {
 };
 
 export const crearUsuarioCliente = async (usuarioCliente) => {
+  console.log("servicio usuarioCliente: ", usuarioCliente)
+
   try {
     const response = await fetch(`${API_URL}`, {
       method: "POST", // La solicitud debe ser tipo POST para crear recursos.
       headers: {
-        "Content-Type": "application/json", // Indica que el cuerpo de la solicitud es JSON.
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(usuarioCliente), // Convierte los datos del usuario en un formato JSON.
+      body: JSON.stringify(usuarioCliente) // Convierte los datos del usuario en un formato JSON.
     });
     
     const data = await response.json();

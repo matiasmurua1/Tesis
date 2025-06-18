@@ -16,13 +16,25 @@ const mostrarUsuarioClientePorID = async (id) => {
                 uc.email,
                 uc.id_rol,
                 uc.id_servicio,
+
                 m.id              AS mascota_id,
                 m.nombre          AS mascota_nombre,
                 m.edad,
-                m.descripcion
+                m.descripcion,
+
+                i.id              AS usuario_imagen_id,
+                i.path            AS usuario_imagen_ruta,
+
+                im.id             AS mascota_imagen_id,
+                im.path           AS mascota_imagen_ruta
+
             FROM usuario_cliente uc
             LEFT JOIN mascota m
                 ON uc.id_mascota = m.id
+            LEFT JOIN imagen i
+                ON uc.imagen = i.id
+            LEFT JOIN imagen im
+                ON m.imagen = im.id
             WHERE uc.id = ?
         `;
         const rows = await connection.query(query, [id]);
@@ -38,12 +50,17 @@ const mostrarUsuarioClientePorID = async (id) => {
             email: usuariosClientes.email,
             id_rol: usuariosClientes.id_rol,
             id_servicio: usuariosClientes.id_servicio,
+            
+            imagen_id: usuariosClientes.usuario_imagen_id,
+            imagen_path: usuariosClientes.usuario_imagen_ruta,
+
             mascota: usuariosClientes.mascota_id ? {
-            id: usuariosClientes.mascota_id,
-            nombre: usuariosClientes.mascota_nombre,
-            tipo_mascota: usuariosClientes.tipo_mascota,
-            edad: usuariosClientes.edad,
-            descripcion: usuariosClientes.descripcion,
+                id: usuariosClientes.mascota_id,
+                nombre: usuariosClientes.mascota_nombre,
+                edad: usuariosClientes.edad,
+                descripcion: usuariosClientes.descripcion,
+                imagen_id: usuariosClientes.mascota_imagen_id,
+                imagen_path: usuariosClientes.mascota_imagen_ruta
             } : null,
         };
         return usuario;
@@ -76,7 +93,13 @@ const mostrarUsuarioClientePorDNI = async (dni_cuit) => {
 const mostrarUsuariosClientes = async () => {
     const connection = await getConnection();
     try {
-        const usuariosClientes = await connection.query('SELECT * FROM usuario_cliente');
+        const usuariosClientes = await connection.query(`
+            SELECT uc.*,
+            i.id AS imagen_id,
+            i.path AS imagen_ruta,
+            FROM usuario_cliente uc
+            LEFT JOIN imagen i ON uc.imagen = i.id
+    `);
         return usuariosClientes;
     } catch (error) {
         console.error('Error al obtener usuarios clientes:', error);
@@ -97,17 +120,32 @@ const mostrarUsuariosEmpleadores = async () => {
 
 // Crear un nuevo usuario cliente
 const crearUsuarioCliente = async (usuarioCliente) => {
-    const connection = await getConnection();
-    const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, calificacion } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
-    try {
-        const result = await connection.query(
-            'INSERT INTO usuario_cliente (nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, calificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        );
-        return result.insertId; // Devuelve el ID del usuario cliente insertado
-    } catch (error) {
-        console.error('Error al insertar el usuario cliente:', error);
-        throw error;
-    }
+  const connection = await getConnection();
+
+  const {
+    nombre,
+    contrasena,
+    dni_cuit,
+    telefono,
+    direccion,
+    id_mascota,
+    email,
+    id_rol,
+    id_servicio,
+    calificacion,
+    imagen
+  } = usuarioCliente;
+
+  try {
+    const result = await connection.query(
+      'INSERT INTO usuario_cliente (nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, calificacion, imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, calificacion, imagen] 
+    );
+    return result.insertId;
+  } catch (error) {
+    console.error('Error al insertar el usuario cliente:', error);
+    throw error;
+  }
 };
 
 // Actualizar un usuario cliente por ID
@@ -125,6 +163,45 @@ const actualizarUsuarioCliente = async (id, usuarioCliente) => {
     }
 };
 
+const asignarMascotaUsuarioCliente = async (idMascota, idUsuarioCliente) => {
+    const connection = await getConnection();
+    
+  console.log("body asignarMascotaUsuarioCliente",{idMascota, idUsuarioCliente} )
+    try {
+        const result = await connection.query(
+            'UPDATE usuario_cliente SET id_mascota = ? WHERE id = ?',
+            [idMascota, idUsuarioCliente]);
+        return result.affectedRows; 
+    } catch (error) {
+        console.error('Error al actualizar el usuario cliente:', error);
+        throw error;
+    }
+};
+
+const calificarEmpleador = async (id_usuario_empleador) => {
+    const connection = await getConnection();
+
+    try {
+        const [rows] = await connection.query(
+            'SELECT AVG(puntaje) AS promedio FROM resena WHERE id_usuario_empleador = ?',
+            [id_usuario_empleador]
+        );
+
+        const calificacionPromedio = Math.round(rows.promedio || 0);
+
+        const result = await connection.query(
+            'UPDATE usuario_cliente SET calificacion = ? WHERE id = ?',
+            [calificacionPromedio, id_usuario_empleador]
+        );
+
+        return result.affectedRows; 
+    } catch (error) {
+        console.error('Error al actualizar el usuario:', error);
+        throw error;
+    }
+};
+
+
 // Eliminar un usuario cliente por ID
 const eliminarUsuarioCliente = async (idUsuarioCliente) => {
     const connection = await getConnection();
@@ -141,5 +218,5 @@ const eliminarUsuarioCliente = async (idUsuarioCliente) => {
 };
 
 module.exports = {
-    mostrarUsuariosClientes, crearUsuarioCliente, actualizarUsuarioCliente, mostrarUsuariosEmpleadores, eliminarUsuarioCliente, mostrarUsuarioClientePorID, mostrarUsuarioClientePorEmail, mostrarUsuarioClientePorDNI
+    mostrarUsuariosClientes,asignarMascotaUsuarioCliente, calificarEmpleador, crearUsuarioCliente, actualizarUsuarioCliente, mostrarUsuariosEmpleadores, eliminarUsuarioCliente, mostrarUsuarioClientePorID, mostrarUsuarioClientePorEmail, mostrarUsuarioClientePorDNI
 };

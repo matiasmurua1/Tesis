@@ -52,7 +52,6 @@ export const enviarSolicitudes = async (body) => {
 export const editarSolicitudes = async (body, id) => {
         console.log("soli: ", id)
         console.log("bodysoli: ", body)
-
   try {
     const response = await fetch(`${API_URL}/${id}`, {
       method: "PATCH",

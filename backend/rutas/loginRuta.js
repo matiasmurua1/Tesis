@@ -5,6 +5,6 @@ const loginControlador = require('../controladores/loginControlador');
 const loginRutas = express.Router();
 
 // Ruta para login
-loginRutas.post('/login', loginControlador.loginUsuario);
+loginRutas.post('/login', express.json(),loginControlador.loginUsuario);
 
 module.exports = loginRutas;

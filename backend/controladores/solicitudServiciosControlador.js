@@ -1,5 +1,11 @@
 // Lógica para manejar las peticiones de solicitudes de servicio
 const solicitudServicioModelo = require('../modelos/solicitudServiciosModelo');
+const estadoPrioridad = {
+    "pendiente": 0,
+    "en curso": 1,
+    "aceptada": 2,
+    "finalizada": 3
+  };
 
 // Controlador para obtener todas las solicitudes de servicio
 const getSolicitudesServicio = async (req, res) => {
@@ -15,8 +21,15 @@ const getSolicitudesServicio = async (req, res) => {
 const getSolicitudesServicioPorCliente = async (req, res) => {
   const { id } = req.params;
   try {
-    const solicitudes = await solicitudServicioModelo.getSolicitudesServicioPorCliente(id); 
-    res.json(solicitudes);
+    const solicitudes = await solicitudServicioModelo.getSolicitudesServicioPorCliente(id);
+
+    const solicitudesOrdenadas = solicitudes.sort((a, b) => {
+      const prioridadA = estadoPrioridad[a.estado?.toLowerCase().trim()] ?? Infinity;
+      const prioridadB = estadoPrioridad[b.estado?.toLowerCase().trim()] ?? Infinity;
+      return prioridadA - prioridadB;
+    });
+
+    res.json(solicitudesOrdenadas);
   } catch (error) {
     console.error('Error al obtener solicitudes de servicio:', error);
     res.status(500).json({ message: 'Error al obtener solicitudes de servicio' });

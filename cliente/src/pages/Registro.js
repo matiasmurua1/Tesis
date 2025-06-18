@@ -20,12 +20,11 @@ import {
 import { PhotoCamera } from '@mui/icons-material';
 import { obtenerServicios } from '../services/servicios';
 import {crearUsuarioCliente} from '../services/administrarUsuario'; 
-
+import {enviarImagenes} from '../services/imagenes'
 import imageBG from "../assets/Home/negrito.jpeg";
 
 const Registro = () => {
   const [servicios, setServicios] = useState([])
-  
   const [infoMensaje, setInfoMensaje] = useState(null);
 
   const navigate = useNavigate();
@@ -40,7 +39,7 @@ const Registro = () => {
     email: '',
     esEmpleador: false,
     id_servicio: '',
-    imagenPerfil: null
+    imagen: null
   });
 
   const [errors, setErrors] = useState({
@@ -59,6 +58,18 @@ const Registro = () => {
     try {
       const data = await obtenerServicios();
       setServicios(data || []);
+    } catch (error) {
+      console.error("Error al obtener las solicitudes del cliente:", error);
+    } 
+  };
+
+  const fetchImagenes = async () => {
+    const form = new FormData();
+    form.append("path", formData.imagen); 
+
+    try {
+      const data = await enviarImagenes(form);
+      return data.id;
     } catch (error) {
       console.error("Error al obtener las solicitudes del cliente:", error);
     } 
@@ -88,21 +99,26 @@ const Registro = () => {
     }
   };
 
-  const handleRegistro = async () => {
-      try {
-        let respuesta = await crearUsuarioCliente(formData);
-        console.log("responnnnse: ", respuesta)
-        setInfoMensaje(respuesta.mensaje)
-        
-        navigate("/login");
-      }catch (error) {
-        console.log("Mensaje de error capturado:", error.message);
-        setInfoMensaje(error.message); 
-      }
-    };
+  const handleRegistro = async (idImagen) => {
+    try {
+      
+      console.log("idImagen: ", idImagen)
+      formData.imagen = idImagen
+      formData.imagenPreview = formData.imagenPreview ? null : null;
+      console.log("formData: ", formData)
 
 
-  const handleSubmit = (e) => {
+      const respuesta = await crearUsuarioCliente(formData);
+      setInfoMensaje(respuesta.mensaje);
+      navigate("/login");
+    } catch (error) {
+      console.log("Mensaje de error capturado:", error.message);
+      setInfoMensaje(error.message);
+    }
+  };
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validaciones
@@ -127,22 +143,24 @@ const Registro = () => {
     
     // Si no hay errores, proceder con el registro
     if (!Object.values(newErrors).some(error => error)) {
-      console.log('Datos del formulario:', formData);
+      const idImagen = await fetchImagenes()
       // Aquí iría la lógica para enviar los datos al backend
-      handleRegistro(); // Llama a la función de registro
+      handleRegistro(idImagen); // Llama a la función de registro
+
+
       // Resetear el formulario
-        setFormData({
-            nombre: '', 
-            contrasena: '',
-            confirmarContrasena: '',
-            dni_cuit: '',
-            direccion: '',
-            telefono: '',
-            email: '',
-            esEmpleador: false,
-            id_servicio: '',
-            imagenPerfil: null
-        });
+        // setFormData({
+        //     nombre: '', 
+        //     contrasena: '',
+        //     confirmarContrasena: '',
+        //     dni_cuit: '',
+        //     direccion: '',
+        //     telefono: '',
+        //     email: '',
+        //     esEmpleador: false,
+        //     id_servicio: '',
+        //     imagen: null
+        // });
 
       
     }
@@ -154,8 +172,8 @@ const Registro = () => {
       reader.onload = (event) => {
         setFormData(prev => ({
           ...prev,
-          imagenPerfilPreview: event.target.result,
-          imagenPerfil: e.target.files[0]
+          imagenPreview: event.target.result,
+          imagen: e.target.files[0]
         }));
       };
       reader.readAsDataURL(e.target.files[0]);
@@ -189,18 +207,18 @@ const Registro = () => {
         {/* Campo de imagen de perfil */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
           <Avatar
-            src={formData.imagenPerfilPreview || ''}
+            src={formData.imagenPreview || ''}
             sx={{ width: 100, height: 100, mb: 2 }}
           />
           <input
             accept="image/*"
-            id="imagenPerfil"
-            name="imagenPerfil"
+            id="imagen"
+            name="imagen"
             type="file"
             style={{ display: 'none' }}
             onChange={handleImagePreview}
           />
-          <label htmlFor="imagenPerfil">
+          <label htmlFor="imagen">
             <Button
               variant="contained"
               component="span"

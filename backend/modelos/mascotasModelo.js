@@ -40,11 +40,11 @@ const getMascotaByUserId = async (id) => {
 // Crear una nueva mascota
 const postMascota = async (mascota) => {
     const connection = await getConnection();
-    const { nombre, descripcion, id_usuario, edad } = mascota; // Extraemos los valores del objeto `mascota`
+    const { nombre, descripcion, id_usuario, edad, imagen } = mascota; // Extraemos los valores del objeto `mascota`
     try {
         const result = await connection.query(
-            'INSERT INTO mascota (nombre, descripcion, id_usuario, edad) VALUES (?, ?, ?, ?)',
-            [nombre, descripcion, id_usuario, edad] 
+            'INSERT INTO mascota (nombre, descripcion, id_usuario, edad, imagen) VALUES (?, ?, ?, ?, ?)',
+            [nombre, descripcion, id_usuario, edad, imagen] 
         );
         return result.insertId; // Devuelve el ID de la nueva mascota insertada
     } catch (error) {

@@ -1,7 +1,7 @@
 //Lógica para manejar las peticiones deservicios
 // const modelos
 const mascotasModelo = require('../modelos/mascotasModelo');
-
+const usuarioClienteModelo = require('../modelos/usuarioClienteModelo')
 // Controlador para obtener todos las mascotas
 const getMascotas = async (req, res) => {
   try {
@@ -23,9 +23,14 @@ const getMascotasPorUsuario = async (req, res) => {
 
 // Controlador para crear un nuevo servicio
 const createMascotas = async (req, res) => {
+  console.log("body createMascotas", req.body)
   try {
       const result = await mascotasModelo.postMascota(req.body); // Llama a la función postMascota del modelo
       res.status(201).json({ message: 'Mascota creada con éxito', insertId: result });
+      if(res.status(201)){
+          await usuarioClienteModelo.asignarMascotaUsuarioCliente(result, req.body.usuario);
+      }
+
   } catch (error) {
       res.status(500).json({ message: 'Error al crear Mascota' });
   }

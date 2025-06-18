@@ -20,7 +20,8 @@ import {
   DialogActions,
   Rating, Avatar,
   IconButton,
-  Stack
+  Stack, 
+  TextField
 } from "@mui/material";
 import {
   StarBorder as StarBorderIcon,
@@ -32,26 +33,41 @@ import { AccessTime, Delete, Visibility, Email, Phone, Home  } from "@mui/icons-
 import ConfirmationModal from "../ConfirmarModal/ConfirmarModal";
 import { obtenerUsuarioClientePorID } from "../../services/administrarUsuario";
 import {mayuscPrimeraLetra} from '../../utils/utils';
+import {enviarCalificacion} from '../../services/resena'
 
-
-const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
+const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargarSolicitudes }) => {
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [selectedSolicitud, setSelectedSolicitud] = useState({});
   const [openModalEmpleador, setOpenModalEmpleador] = useState(false);
   const [openModalClasificar, setOpenModalClasificar] = useState(false);
   const [usuarioEmpleador, setUsuarioEmpleador] = useState({});
   const [loadingEmpleador, setLoadingEmpleador] = useState(false);
+
   
+  const [review, setReview] = useState(null)
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
 
   const handleRatingSubmit = () => {
-      fetchCalificarEmpleadores(rating);
+      fetchCalificarEmpleador();
       setOpenModalClasificar(false);
-    };
+  };
 
-  const fetchCalificarEmpleadores = () => {
-    console.log("calificacion", rating)
+  const fetchCalificarEmpleador = async () => {
+    const payload = {
+      id_usuario_empleador: selectedSolicitud.id_usuario_empleador,
+      id_solicitud_servicio: selectedSolicitud.id ,
+      puntaje: rating,
+      comentario: review,
+    }
+    
+     try {
+      const data = await enviarCalificacion(payload);
+      recargarSolicitudes()
+      setOpenModalClasificar(false)
+    } catch (error) {
+      console.error("Error al calificar al empleador:", error);
+    } 
   }
 
   const handleVerEmpleador = (id) => {
@@ -59,12 +75,10 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
     fetchUsuario(id);
   };
 
-  const clasificarEmpleador = (id) => {
+  const clasificarEmpleador = (solicitud) => {
+    setSelectedSolicitud(solicitud);
     setOpenModalClasificar(!openModalClasificar);
-    fetchUsuario(id);
   };
-
-  
 
   const fetchUsuario = async (id) => {
     try {
@@ -156,13 +170,20 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
                         <Chip 
                           label={mayuscPrimeraLetra(solicitud.estado)} 
                           size="small"
-                          color={
-                            solicitud.estado === "pendiente" ? "primary" : 
-                            solicitud.estado === "aceptada" ? "success" : 
-                            solicitud.estado === "en curso" ? "success" : 
-                            solicitud.estado === "finalizada" ? "success" : 
-                            solicitud.estado === "rechazada" ? "error" : "default"
-                          }
+                          style={{ 
+                            backgroundColor: 
+                              solicitud.estado === "pendiente" ? "#FCBE11" : 
+                              solicitud.estado === "aceptada" ? "#2196F3" : 
+                              solicitud.estado === "en curso" ? "#FF9800" : 
+                              solicitud.estado === "finalizada" ? "#4CAF50" : 
+                              solicitud.estado === "rechazada" ? "#FF2C2C" : "default",
+                            color: 
+                              solicitud.estado === "pendiente" ? "#000000" : 
+                              solicitud.estado === "aceptada" ? "#000000" : 
+                              solicitud.estado === "en curso" ? "#000000" : 
+                              solicitud.estado === "finalizada" ? "#000000" : 
+                              solicitud.estado === "rechazada" ? "#FFFFFF" : "default",
+                          }}
                           sx={{ mb: 1 }}
                         />
                         <Typography variant="body2" color="text.secondary">
@@ -172,12 +193,12 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
                       
                       <TableCell align="right">
                         {
-                          solicitud.estado == "finalizada" ? (
+                          solicitud.estado == "finalizada" && !solicitud.resena_id ? (
 
                         <Button 
                           size="small" 
                           startIcon={<StarIcon />}
-                          onClick={() => clasificarEmpleador(solicitud.id_usuario_empleador)}
+                          onClick={() => clasificarEmpleador(solicitud)}
                           sx={{ mr: 1 ,color: '#e5be01'}}
                         >
                           Calificar empleador
@@ -358,9 +379,9 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
         }
       />
 
-      <Dialog
+        <Dialog
           open={openModalClasificar}
-          onClose={()=> {openModalClasificar(false)}}
+          onClose={()=> {setOpenModalClasificar(false)}}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
           maxWidth="sm"
@@ -370,16 +391,16 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
             Calificar al empleador segun tu confirmidad
             {
               <Button
-                  onClick={()=> {openModalClasificar(false)}}
+                  onClick={()=> {setOpenModalClasificar(false)}}
                   sx={{ position: "absolute", right: 8, top: 8 }}
                   >
                   X
               </Button> 
-              } 
-
+            }
           </DialogTitle>
           <DialogContent>
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection:"column", alignItems: 'center', gap:'10px', my: 3 }}>
+              <Box>
               {[1, 2, 3, 4, 5].map((star) => (
                 <IconButton
                   key={star}
@@ -395,6 +416,20 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
                   )}
                 </IconButton>
               ))}
+              </Box>
+              <Grid width='100%' display='flex' justifyContent='center' flexDirection='column'>
+                <Typography variant="subtitle1" sx={{marginBottom: '5px'}}>
+                    Escribe una reseña segun tu conformidad con el servicio
+                </Typography>
+                <TextField
+                  size="big"
+                  variant="outlined"
+                  label="Reseña"
+                  name="Reseña"
+                  required={true}
+                  onChange={(e) => setReview(e.target.value)}
+                ></TextField>
+              </Grid>
             </Box>
             
           </DialogContent>
@@ -417,12 +452,13 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud }) => {
               disabled={rating === 0}
               sx={{ borderRadius: '20px', textTransform: 'none', px: 3 }}
             >
-              Calificar
+              Enviar
             </Button>
           </DialogActions>
 
               
         </Dialog>
+      
     </Box>
   );
 };

@@ -40,6 +40,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { obtenerSolicitudesPorEmpleador, editarSolicitudes} from '../services/solicitudes';
 import {obtenerServicios} from '../services/servicios'
 import {obtenerUsuarioClientePorID} from '../services/administrarUsuario'
+import ConfirmationModal from '../components/ConfirmarModal/ConfirmarModal';
 
 import {mayuscPrimeraLetra} from '../utils/utils'
 
@@ -50,10 +51,12 @@ const Solicitudes = () => {
     const [solicitudesRecibidas, setSolicitudesRecibidas] = useState([])
     const [solicitudEnProgreso, setSolicitudEnProgreso] = useState({})
     const [solicitudesFinalizadas, setSolicitudesFinalizadas] = useState([])
+    const [serviceSelected, setServiceSelected]= useState({})
     const [servicios, setServicios] = useState([])
     const [msgModal, setMsgModal] = useState(null)
     const [usuario, setUsuario] = useState(null)
     const [openModalCliente, setOpenModalCliente] = useState(false)
+    const [openRechazarModal, setOpenRechazarModal] = useState(false)
 
     const fetchSolicitudes = async () => {
         try {
@@ -85,12 +88,17 @@ const Solicitudes = () => {
         try {
             if( id ){
                 const data = await obtenerUsuarioClientePorID(id)
-                console.log("usuario: ", data);
                 setUsuario(data || {});
             }
         } catch (error) {
             console.error("Error al obtener el usuario cliente:", error);
         }
+    }
+    
+    const handleVerCliente = (service) => {
+        setServiceSelected(service)
+        fetchUsuario(service.id_usuario_cliente)
+        setOpenModalCliente(true)
     }
 
     const fetchServicios = async () => {
@@ -109,11 +117,14 @@ const Solicitudes = () => {
             } else {
                 const data = await editarSolicitudes({ estado: estado }, solicitud.id);
                 fetchSolicitudes()
+                setOpenRechazarModal(false)
             }
         } catch (error) {
             console.error("Error al obtener los servicios:", error);
         } 
     }
+
+    
   
     const ClienteModal = () => {
         return(
@@ -138,57 +149,62 @@ const Solicitudes = () => {
 
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText sx={{ mt: 2, fontWeight: "bold" }} >   
-                        <Grid container display='flex' flex='row' justifyContent='center' marginInline={8}>
-
-                                <Grid item size={12} sx={{marginBottom: '15px'}} display='flex' justifyContent='space-between' >
-                                    <Grid>
-                                        <Typography variant="caption" color="text.primary">Nombre</Typography>
-                                        <Typography>{usuario?.nombre || 'No especificada'}</Typography>
-                                    </Grid>
-                                    <Grid>
-                                        
-                                    <Avatar sx={{ 
-                                        width: 80, 
-                                        height: 80, 
-                                        fontSize: 48, 
-                                        bgcolor: 'primary.main'
-                                        }}>
-                                        {getInitials(usuario?.nombre)}
-                                    </Avatar>
+                    <DialogContentText sx={{  fontWeight: "bold" }} >   
+                        <Grid container display='flex' flex='row' justifyContent='center' gap={2}>
+                                <Grid item size={6}>
+                                    <Grid item sx={{
+                                        marginBottom: '15px', 
+                                        borderRadius: '8px',
+                                        bgcolor: 'background.paper',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        borderLeft: '4px solid',
+                                        borderColor: 'primary.main',
+                                        padding:'10px'
+                                    }} 
+                                    display='flex' 
+                                    flexDirection='column'
+                                    justifyContent='space-between' >
                                     
+                                        <Typography variant="body2" fontStyle="italic" sx={{ fontSize: '1.1rem', color: 'black' }}>
+                                            Comentario: 
+                                        </Typography>
+                                        <Typography variant="body2" fontStyle="italic" sx={{ fontSize: '1.1rem', color: 'black' }}>
+                                            {serviceSelected?.comentario}
+                                        </Typography>
+
+                                    </Grid>
+                                    <Grid item sx={{
+                                        marginBottom: '15px', 
+                                        borderRadius: '8px',
+                                        bgcolor: 'background.paper',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        borderLeft: '4px solid',
+                                        borderColor: 'primary.main',
+                                        padding:'10px'
+                                    }} 
+                                    display='flex' 
+                                    flexDirection='column'
+                                    justifyContent='space-between' >
+
+                                        <Typography variant="body2" fontStyle="italic" sx={{ fontSize: '1.1rem', color: 'black' }}>
+                                            Calificacion del servicio:
+                                        </Typography>
+                                        <Rating 
+                                            value={serviceSelected?.puntaje} 
+                                            readOnly 
+                                            precision={0.5} 
+                                            size="small" 
+                                        />
                                     </Grid>
                                 </Grid>
-                                
-                                
-                                <Divider sx={{ mb: 3 }} />
+                                <Grid item size={5} >
 
-                                <Grid item size={6} sx={{marginBottom: '15px'}} >
-                                    <Typography variant="caption" color="text.primary">DNI/CUIT</Typography>
-                                    <Typography>{usuario?.dni_cuit || 'No especificado'}</Typography>
-                                </Grid>
-                                
-                                <Grid item size={6} sx={{marginBottom: '15px'}} >
-                                    <Typography variant="caption" color="text.primary">Teléfono</Typography>
-                                    <Typography>{usuario?.telefono || 'No especificado'}</Typography>
-                                </Grid>
-
-                                <Grid item size={6} sx={{marginBottom: '15px'}}>
-                                    <Typography variant="caption" color="text.primary">Dirección</Typography>
-                                    <Typography>{usuario?.direccion || 'No especificada'}</Typography>
-                                </Grid>
-                                
-                                <Grid item size={6} sx={{marginBottom: '15px'}}>
-                                    <Typography variant="caption" color="text.primary">Email</Typography>
-                                    <Typography>{usuario?.email}</Typography>
-                                </Grid>
-
-                                <Grid item size={12} sx={{marginBottom: '15px'}} display='flex' justifyContent='space-between'>
-                                    <Grid>
-                                        <Typography variant="caption" color="text.primary">Mascota</Typography>
-                                        <Typography>{usuario?.mascota.nombre}</Typography>
-                                    </Grid>
-                                    <Grid>
+                                    <Grid item size={12} sx={{marginBottom: '15px'}} display='flex' justifyContent='space-between' >
+                                        <Grid>
+                                            <Typography variant="caption" color="text.primary">Nombre</Typography>
+                                            <Typography>{usuario?.nombre || 'No especificada'}</Typography>
+                                        </Grid>
+                                        <Grid>
                                             
                                         <Avatar sx={{ 
                                             width: 80, 
@@ -196,14 +212,56 @@ const Solicitudes = () => {
                                             fontSize: 48, 
                                             bgcolor: 'primary.main'
                                             }}>
-                                            {getInitials(usuario?.mascota.nombre)}
+                                            {getInitials(usuario?.nombre)}
                                         </Avatar>
-
+                                        
+                                        </Grid>
                                     </Grid>
+                                    
+                                    <Divider sx={{ mb: 3 }} />
+
+                                    <Grid item size={6} sx={{marginBottom: '15px'}} >
+                                        <Typography variant="caption" color="text.primary">DNI/CUIT</Typography>
+                                        <Typography>{usuario?.dni_cuit || 'No especificado'}</Typography>
+                                    </Grid>
+                                    
+                                    <Grid item size={6} sx={{marginBottom: '15px'}} >
+                                        <Typography variant="caption" color="text.primary">Teléfono</Typography>
+                                        <Typography>{usuario?.telefono || 'No especificado'}</Typography>
+                                    </Grid>
+
+                                    <Grid item size={6} sx={{marginBottom: '15px'}}>
+                                        <Typography variant="caption" color="text.primary">Dirección</Typography>
+                                        <Typography>{usuario?.direccion || 'No especificada'}</Typography>
+                                    </Grid>
+                                    
+                                    <Grid item size={6} sx={{marginBottom: '15px'}}>
+                                        <Typography variant="caption" color="text.primary">Email</Typography>
+                                        <Typography>{usuario?.email}</Typography>
+                                    </Grid>
+
+                                    <Grid item size={12} sx={{marginBottom: '15px'}} display='flex' justifyContent='space-between'>
+                                        <Grid>
+                                            <Typography variant="caption" color="text.primary">Mascota</Typography>
+                                            <Typography>{usuario?.mascota.nombre}</Typography>
+                                        </Grid>
+                                        <Grid>
+                                                
+                                            <Avatar sx={{ 
+                                                width: 80, 
+                                                height: 80, 
+                                                fontSize: 48, 
+                                                bgcolor: 'primary.main'
+                                                }}>
+                                                {getInitials(usuario?.mascota.nombre)}
+                                            </Avatar>
+
+                                        </Grid>
+                                    </Grid>
+
+                                    <Divider sx={{ mb: 3 }} />
+                                    
                                 </Grid>
-
-                                
-
                         </Grid>
                     </DialogContentText>
                 </DialogContent>
@@ -389,12 +447,24 @@ const Solicitudes = () => {
                                 color="error"
                                 size="small"
                                 startIcon={<CancelIcon />}
+                                onClick={() => setOpenRechazarModal(true)}
                                 sx={{ borderRadius: '20px', textTransform: 'none' }}
                                 >
                                 Cancelar
                                 </Button>
                             </Stack>
                             </TableCell>
+                            
+
+                            <ConfirmationModal
+                                open={openRechazarModal}
+                                onClose={() => setOpenRechazarModal(false)}
+                                onConfirm={() => cambiarEstadoDeSolicitud(solicitud, "rechazada")}
+                                title="Rechazar solicitud de servicio"
+                                confirmText="Rechazar"
+                                message="¿Estás seguro que deseas rechazar solicitud de este cliente? "
+                                warning="Esta acción no se puede deshacer."
+                            />
                         </TableRow>
                         ))}
                         {solicitudesRecibidas.length === 0 ? (
@@ -433,27 +503,31 @@ const Solicitudes = () => {
                             </Typography>
                             </Box>
                             
-                            <Stack direction="row" spacing={2} alignItems="center">
-                            <Rating 
-                                value={servicio.puntaje} 
-                                readOnly 
-                                precision={0.5} 
-                                size="small" 
-                            />
-                            <Button 
-                                variant="text" 
-                                startIcon={<VisibilityIcon />}
-                                sx={{ textTransform: 'none' }}
-                                onClick={()=> setOpenModalCliente(true)}
-                            >
-                                Ver cliente
-                            </Button>
-                            </Stack>
+                            <Grid container direction="row" spacing={2} alignItems="center">
+                                <Grid item display='flex' flexDirection="column" alignItems='center'>
+                                    <Rating 
+                                        value={servicio.puntaje} 
+                                        readOnly 
+                                        precision={0.5} 
+                                        size="small" 
+                                    />
+                                    
+                                    <Button 
+                                        variant="text" 
+                                        size='small' 
+                                        onClick={() => handleVerCliente(servicio)}
+                                        sx={{ marginLeft: '5px', textTransform: "capitalize"}} 
+                                    >
+                                        Ver reseña
+                                    </Button>
+                                </Grid>
+                            </Grid>
                         </Stack>
                         </CardContent>
                     </Card>
                     ))}
                 </Stack>
+            <ClienteModal/>
             
             </Grid>
             <Snackbar
@@ -468,7 +542,6 @@ const Solicitudes = () => {
                     {msgModal}
                 </Alert>
             </Snackbar>
-            <ClienteModal/>
         </Grid>
     </Grid>
   );

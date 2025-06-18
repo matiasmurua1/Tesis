@@ -35,7 +35,8 @@ const getUsuariosEmpleadores = async (req, res) => {
 
 // Controlador para crear un nuevo usuario cliente
 const postUsuarioCliente = async (req, res) => {
-    let { nombre, contrasena, dni_cuit, telefono, direccion, email, id_rol, id_servicio, esEmpleador } = req.body;
+
+    let { nombre, contrasena, dni_cuit, telefono, direccion, email, id_rol, id_servicio, esEmpleador, imagen } = req.body;
     console.log("Usuario a crear:", req.body); // Muestra el usuario que se va a crear en la consola.
     if (!nombre || !contrasena || !dni_cuit || !telefono || !direccion || !email) {
         if (id_rol =="EMPLEADOR"){
@@ -68,7 +69,7 @@ const postUsuarioCliente = async (req, res) => {
     }
 
     try {
-        const nuevoUsuarioClienteId = await usuarioClienteModelo.crearUsuarioCliente({ nombre, contrasena, dni_cuit, telefono, direccion, email, id_rol, id_servicio });
+        const nuevoUsuarioClienteId = await usuarioClienteModelo.crearUsuarioCliente({ nombre, contrasena, dni_cuit, telefono, direccion, email, id_rol, id_servicio, imagen });
         res.status(201).json({ mensaje: 'Usuario cliente creado exitosamente', id: nuevoUsuarioClienteId });
     } catch (error) {
         console.error('Error al crear el usuario cliente:', error);

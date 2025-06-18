@@ -59,8 +59,7 @@ const MiPerfil = () => {
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
-  const [mascota , setMascota] = useState([])
-
+  
 
 
   const toggleMostrarContrasena = () => {
@@ -92,6 +91,7 @@ const MiPerfil = () => {
     try {
       setLoading(true);
       const data = await obtenerUsuarioClientePorID(user.id);
+      console.log("dataaa: ", data)
       setUsuario(data || {});
     } catch (error) {
       console.error("Error al obtener el usuario cliente:", error);
@@ -99,26 +99,15 @@ const MiPerfil = () => {
     }
   }
 
-  const fetchMascotas = async () => {
-    if (!user || !user.id) {
-      console.error("No hay un usuario autenticado.");
-      return;
-    }
 
-    try {
-      setLoading(true);
-      const data = await obtenerMascotaPorIdUsuario(user.id);
-      setMascota(data[0] || {});
-    } catch (error) {
-      setLoading(false);
-    }
-  }
+
 
   const fetchSolicitudes = async () => {
     try {
       setLoadingSolicitudes(true);
       const data = await obtenerSolicitudesPorCliente(user.id);
-      setSolicitudes(data || []); // Asegura que sea array
+
+      setSolicitudes(data || []);
     } catch (error) {
       console.error("Error al obtener las solicitudes del cliente:", error);
       setLoading(false);
@@ -146,7 +135,6 @@ const MiPerfil = () => {
   useEffect(() => {
     fetchUsuario();
     fetchSolicitudes();
-    fetchMascotas()
   }, [user]);
 
   const handleChange = (e) => {
@@ -232,10 +220,11 @@ const MiPerfil = () => {
         </Box>
       ) : usuario ? (
         <Grid container  gap={1} display='flex' justifyContent='space-between'>
-          {/* columna 1 */}
+
           <Grid item xs={12} md={5} >
             <Grid item xs={12} >
-              <Paper elevation={3} sx={{ 
+              <Paper elevation={3} 
+              sx={{ 
                 p: 3, 
                 borderRadius: 3, 
                 height: '100%',
@@ -245,15 +234,37 @@ const MiPerfil = () => {
                 textAlign: 'center',
                 background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)'
               }}>
-                <Avatar sx={{ 
-                  width: 120, 
-                  height: 120, 
-                  fontSize: 48, 
-                  mb: 3,
-                  bgcolor: 'primary.main'
-                }}>
-                  {getInitials(usuario.nombre)}
-                </Avatar>
+
+                
+               <div
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: "50%",
+                    fontSize: 48,
+                    marginBottom: 24,
+                    backgroundColor: usuario.imagen_path ? "transparent" : "#3f51b5", // primary.main
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden"
+                  }}
+                >
+                  {usuario.imagen_path ? (
+                    <img
+                      src={`http://localhost:4000${usuario.imagen_path}`}
+                      alt="avatar"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover"
+                      }}
+                    />
+                  ) : (
+                    getInitials(usuario.nombre)
+                  )}
+                </div>
                 
                 <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
                   {usuario.nombre}
@@ -289,7 +300,7 @@ const MiPerfil = () => {
                 (
                     <Grid item xs={12}  style={{marginTop: "20px"}}>
                       <MascotaCard 
-                        mascota={mascota} 
+                        mascota={usuario.mascota} 
                       />
                     {/* <ProfileItem>
                       <Pets color="primary" sx={{ mr: 2 }} />
@@ -407,6 +418,7 @@ const MiPerfil = () => {
             solicitudes={solicitudes} 
             loading={loadingSolicitudes}
             onDeleteSolicitud={handleDeleteSolicitud}
+            recargarSolicitudes={fetchSolicitudes}
           />
           ) : (
             <ServiciosActivos serviciosActivos={user.id_servicio}/>

@@ -50,7 +50,7 @@ const ConfirmationModal = ({
       </DialogContentText>
       {warning && (
         <DialogContentText
-          sx={{ mt: 2, fontWeight: "bold", color: "error.main" }}
+          sx={{ mt: 2, fontWeight: "bold", color: "error.main", marginLeft: '5px' }}
         >
           {warning}
         </DialogContentText>

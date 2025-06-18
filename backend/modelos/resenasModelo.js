@@ -15,11 +15,11 @@ const getResenas = async () => {
 // Crear una nueva resena
 const postResena = async (resena) => {
     const connection = await getConnection();
-    const { id_usuario_cliente, comentario, id_solicitud_servicio } = resena; // Extrae los valores del objeto `resena`
+    const { id_usuario_empleador, comentario, id_solicitud_servicio, puntaje } = resena; // Extrae los valores del objeto `resena`
     try {
         const result = await connection.query(
-            'INSERT INTO resena (id_usuario_cliente, comentario, id_solicitud_servicio) VALUES (?, ?, ?)',
-            [id_usuario_cliente, comentario, id_solicitud_servicio]
+            'INSERT INTO resena (id_usuario_empleador, comentario, id_solicitud_servicio, puntaje) VALUES (?, ?, ?, ?)',
+            [id_usuario_empleador, comentario, id_solicitud_servicio, puntaje]
         );
         return result.insertId; // Devuelve el ID de la resena insertada
     } catch (error) {

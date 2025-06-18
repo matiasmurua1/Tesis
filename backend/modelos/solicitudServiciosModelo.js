@@ -27,7 +27,20 @@ const getSolicitudesServicio = async () => {
 const getSolicitudesServicioPorEmpleador = async (id) => {
     const connection = await getConnection();
     try {
-        const solicitudes = await connection.query('SELECT * FROM solicitud_servicio WHERE id_usuario_empleador = ?', [id]);
+        const solicitudes = await connection.query(`SELECT 
+                ss.id ,
+                ss.id_usuario_cliente,
+                ss.id_usuario_empleador,
+                ss.id_servicio,
+                ss.estado,
+                ss.fecha_hora,
+                ss.id_resena,
+                r.id AS resena_id,
+                r.puntaje,
+                r.comentario
+             FROM solicitud_servicio ss
+             LEFT JOIN resena r ON ss.id_resena = r.id
+             WHERE ss.id_usuario_empleador = ?`, [id]);
         if (solicitudes.length === 0) { // Si no hay solicitudes, devuelve un array vacío
             return []; // Devuelve un array vacío si no hay solicitudes
             }
@@ -42,7 +55,20 @@ const getSolicitudesServicioPorEmpleador = async (id) => {
 const getSolicitudesServicioPorCliente = async (idUsuarioCliente) => {
     const connection = await getConnection();
     try {
-        const solicitudes = await connection.query('SELECT * FROM solicitud_servicio WHERE id_usuario_cliente = ?', [idUsuarioCliente]);
+        const solicitudes = await connection.query(`SELECT 
+                ss.id ,
+                ss.id_usuario_cliente,
+                ss.id_usuario_empleador,
+                ss.id_servicio,
+                ss.estado,
+                ss.fecha_hora,
+                ss.id_resena,
+                r.id AS resena_id,
+                r.puntaje,
+                r.comentario
+             FROM solicitud_servicio ss
+             LEFT JOIN resena r ON ss.id_resena = r.id
+             WHERE ss.id_usuario_cliente = ?`, [idUsuarioCliente]);
         if (solicitudes.length === 0) { // Si no hay solicitudes, devuelve un array vacío
             return []; // Devuelve un array vacío si no hay solicitudes
             }
@@ -103,6 +129,22 @@ const putSolicitudServicio = async (id, solicitud) => {
     }
 };
 
+// Actualizar una solicitud de servicio por ID
+const patchSolicitudServicio = async (id, columna) => {
+    const connection = await getConnection();
+    
+    try {
+        const result = await connection.query(
+            `UPDATE solicitud_servicio SET ${columna.nombre} = ? WHERE id = ?`,
+            [columna.valor, id]
+        );
+        return result.affectedRows; // Devuelve el número de filas actualizadas
+    } catch (error) {
+        console.error('Error al actualizar la solicitud de servicio:', error);
+        throw error;
+    }
+};
+
 const editarEstadoSolicitudServicio = async (id, solicitud) => {
     const connection = await getConnection();
     const { estado } = solicitud;
@@ -142,5 +184,6 @@ module.exports = {
     getSolicitudesServicioPorCliente, 
     getSolicitudServicioPorID,
     getSolicitudesServicioPorEmpleador, 
-    editarEstadoSolicitudServicio
+    editarEstadoSolicitudServicio,
+    patchSolicitudServicio
 };
