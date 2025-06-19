@@ -31,7 +31,8 @@ export default function TableServices() {
     const { user } = useAuth();
     const { service } = useParams();
     const [modalTurno, setModalTurno] = useState(false);
-    const [fechaTurno, setFechaTurno] = useState(dayjs(getFecha()));
+    const [fecha, setFecha] = useState(dayjs());
+    const [hora, setHora] = useState(dayjs());
     const [modalMsg, setAbrirModalMsg] = useState(false)
     const [msg, setMsg] = useState("")
     const [empleadores, setEmpleadores] = useState([])
@@ -43,7 +44,7 @@ export default function TableServices() {
     useEffect(() => {
         fetchServicios();
         fetchEmpledores();
-        setFechaTurno(dayjs.utc(getFecha(), 'DD/MM/YYYY'));
+        // setFechaTurno(dayjs.utc(getFecha(), 'DD/MM/YYYY'));
     }, []);
 
     const fetchServicios = async () => {
@@ -61,31 +62,37 @@ export default function TableServices() {
         try {
         const data = await obtenerUsuariosEmpleadores();
         setEmpleadores(data.filter(empleador => empleador.id_servicio == service));
+        console.log("dataaa: ", data)
         } catch (error) {
         console.error("Error al obtener los empleadores:", error);
         } 
     };
 
     const fetchEnviarSolicitudes = async (empleador_id) => {
-        setFechaTurno(formatearFechaLocal(dayjs(fechaTurno)));
+        const fechaHora = fecha
+            .hour(hora.hour())
+            .minute(hora.minute())
+            .second(0);
+
+        // Formatear a "DD/MM/YYYY HH:mm"
+        const fechaFormateada = fechaHora.format('DD/MM/YYYY HH:mm');
 
         try {
-        const data = await enviarSolicitudes({
-            fecha_hora: fechaTurno,
-            id_usuario_cliente: user.id,
-            id_servicio: service,
-            id_usuario_empleador: empleador_id,
-            estado: "pendiente"
-        });
-        setMsg(data.message)
-        setAbrirModalMsg(!modalMsg)
-        
-        const empleador = await obtenerUsuarioClientePorID(data.solicitud.id_usuario_empleador)
+            const data = await enviarSolicitudes({
+                fecha_hora: fechaFormateada,
+                id_usuario_cliente: user.id,
+                id_servicio: service,
+                id_usuario_empleador: empleador_id,
+                estado: "pendiente"
+            });
 
-        setEmpleadorSolicitud(empleador);
+            setMsg(data.message);
+            setAbrirModalMsg(true);
 
+            const empleador = await obtenerUsuarioClientePorID(data.solicitud.id_usuario_empleador);
+            setEmpleadorSolicitud(empleador);
         } catch (error) {
-        console.error("Error al enviar la solicitud:", error);
+            console.error("Error al enviar la solicitud:", error);
         }
     };
 
@@ -107,7 +114,9 @@ export default function TableServices() {
                             <Typography variant='body2'>Turno para el dia 
                             </Typography>
                             <Typography variant='subtitle2' sx={{ border: '1px solid', margin: '5px', padding: "8px", borderRadius: "3px"}}> 
-                                {fechaTurno} 
+                                <Typography variant='subtitle2'>
+                                    {fecha.format('DD/MM/YYYY')} - {hora.format('HH:mm')}
+                                </Typography>
                             </Typography>
                             <Typography variant='body2'> 
                                 con 
@@ -144,16 +153,16 @@ export default function TableServices() {
                                 disablePast
                                 sx={{width:'70%'}}
                                 label="Fecha del Turno"
-                                value={fechaTurno}
-                                onChange={(fecha) => setFechaTurno(fecha)}
+                                value={fecha}
+                                onChange={(newDate) => setFecha(newDate)}
                             />
                         </Grid>
                         <Grid size={12} display="flex" justifyContent="center">
                             <TimePicker
                                 sx={{ width: '70%' }}
                                 label="Hora del Turno"
-                                value={fechaTurno}
-                                onChange={(fecha) => setFechaTurno(fecha)}
+                                value={hora}
+                                onChange={(newTime) => setHora(newTime)}
                                 format="HH:mm"
                             />
                         </Grid>
@@ -199,12 +208,33 @@ export default function TableServices() {
                 </Grid>
                 {empleadores.map((local, index) => (
                     <Grid key={index} container size={12} sx={{ height: '160px', border: ' solid #474963 1px', borderRadius: '10px', boxShadow: '4px 4px 4px 2px rgba(0, 0, 0, 0.1)' }} justifyContent='space-evenly'>
-                        <Grid >
-                            <img
-                                src={local.img || defaultImg}
-                                alt='Peluqueria 1'
-                                style={{ height: '145px', width: '200px', borderRadius: '10px', margin: '6px' }}
-                            />
+                        <Grid display="flex" justifyContent="center">
+                            <div
+                                style={{
+                                    width: 120,
+                                    height: 120,
+                                    borderRadius: "50%",
+                                    fontSize: 48,
+                                    marginTop: 15,
+                                    backgroundColor: local.imagen_path ? "transparent" : "#3f51b5", // primary.main
+                                    color: "#fff",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    overflow: "hidden"
+                                }}
+                                >
+                                
+                                    <img
+                                    src={`http://localhost:4000${local.imagen_path}`}
+                                    alt="avatar"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover"
+                                    }}
+                                    />
+                                </div>
                         </Grid>
                         <Grid size={5} padding={1}>
                             <Typography variant='h6'>

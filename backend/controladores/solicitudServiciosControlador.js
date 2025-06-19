@@ -6,6 +6,8 @@ const estadoPrioridad = {
     "aceptada": 2,
     "finalizada": 3
   };
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
 
 // Controlador para obtener todas las solicitudes de servicio
 const getSolicitudesServicio = async (req, res) => {
@@ -59,15 +61,51 @@ const getSolicitudServicioPorID = async (req, res) => {
   }
 };
 
-// Controlador para crear una nueva solicitud de servicio
+
+
+const formatearFechaLocal = (datetimeStr) => {
+  // Extiende dayjs para usar el formato personalizado
+  dayjs.extend(customParseFormat);
+
+  // Intenta parsear según el formato DD/MM/YYYY HH:mm
+  const fecha = dayjs(datetimeStr, 'DD/MM/YYYY HH:mm');
+  if (!fecha.isValid()) {
+    console.error('❌ Fecha inválida:', datetimeStr); // Error para depuración
+    return null; // Devuelve null si la fecha es inválida
+  }
+
+  // Formatear a "YYYY-MM-DD HH:mm:ss" para MySQL
+  return fecha.format('YYYY-MM-DD HH:mm:ss');
+};
+
 const createSolicitudServicio = async (req, res) => {
+  console.log("createSolicitudServicio body: ", req.body);
+
   try {
-    const result = await solicitudServicioModelo.postSolicitudServicio(req.body); // Llama a la función del modelo
+    // Formatear la fecha recibida del body
+    const fechaHoraFormateada = formatearFechaLocal(req.body.fecha_hora);
+    if (!fechaHoraFormateada) {
+      return res.status(400).json({ error: 'Fecha y hora inválida' }); // Validación de fecha
+    }
 
-    const solicitud = await solicitudServicioModelo.getSolicitudServicioPorID(result.insertId)
+    // Crear un nuevo objeto de solicitud con la fecha formateada
+    const solicitud = {
+      ...req.body,
+      fecha: fechaHoraFormateada, // Usar la fecha formateada
+    };
 
-    res.status(201).json({ message: 'Solicitud de servicio creada con éxito', insertId: result.insertId, solicitud: solicitud });
+    // Llama al modelo con el objeto de solicitud actualizado
+    const result = await solicitudServicioModelo.postSolicitudServicio(solicitud);
 
+    // Obtener la solicitud recién creada
+    const nuevaSolicitud = await solicitudServicioModelo.getSolicitudServicioPorID(result.insertId);
+
+    // Responder con éxito
+    res.status(201).json({
+      message: 'Solicitud de servicio creada con éxito',
+      insertId: result.insertId,
+      solicitud: nuevaSolicitud,
+    });
   } catch (error) {
     console.error('Error al crear la solicitud de servicio:', error);
     res.status(500).json({ message: 'Error al crear solicitud de servicio' });

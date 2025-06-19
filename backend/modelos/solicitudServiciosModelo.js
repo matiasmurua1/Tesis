@@ -12,6 +12,9 @@ function formatearFechaLocal(datetimeStr) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+
+
+
 // Obtener todas las solicitudes de servicio
 const getSolicitudesServicio = async () => {
     const connection = await getConnection();
@@ -96,21 +99,23 @@ const getSolicitudServicioPorID = async (id) => {
 
 // Crear una nueva solicitud de servicio
 const postSolicitudServicio = async (solicitud) => {
-    const connection = await getConnection();
-    const fecha = formatearFechaLocal(solicitud.fecha_hora) 
-    
-    const { id_usuario_cliente, id_servicio, id_usuario_empleador, estado } = solicitud;
-    try {
-        const result = await connection.query(
-            'INSERT INTO solicitud_servicio (fecha_hora, id_usuario_cliente, id_servicio, id_usuario_empleador, estado) VALUES (?, ?, ?, ?, ?)',
-            [fecha, id_usuario_cliente, id_servicio, id_usuario_empleador, estado]
-        );
-    console.log("result:" , result)
-        return result;
-    } catch (error) {
-        console.error('Error al insertar la solicitud de servicio:', error);
-        throw error;
-    }
+  const connection = await getConnection();
+
+  const { id_usuario_cliente, id_servicio, id_usuario_empleador, estado, fecha } = solicitud;
+  console.log('🕓 Fecha final a guardar:', fecha);
+
+  try {
+    const result = await connection.query(
+      'INSERT INTO solicitud_servicio (fecha_hora, id_usuario_cliente, id_servicio, id_usuario_empleador, estado) VALUES (?, ?, ?, ?, ?)',
+      [fecha, id_usuario_cliente, id_servicio, id_usuario_empleador, estado] // Aquí usamos "fecha" que viene ya formateada
+    );
+
+    console.log("result:", result);
+    return result;
+  } catch (error) {
+    console.error('Error al insertar la solicitud de servicio:', error);
+    throw error;
+  }
 };
 
 // Actualizar una solicitud de servicio por ID

@@ -110,7 +110,15 @@ const mostrarUsuariosClientes = async () => {
 const mostrarUsuariosEmpleadores = async () => {
     const connection = await getConnection();
     try {
-        const usuariosClientes = await connection.query('SELECT * FROM usuario_cliente WHERE id_rol = 1');
+        const usuariosClientes = await connection.query(`
+            SELECT 
+                uc.*,
+                i.id AS imagen_id,
+                i.path AS imagen_path
+            FROM usuario_cliente uc
+            LEFT JOIN imagen i ON uc.imagen = i.id
+            WHERE uc.id_rol = 1
+        `);
         return usuariosClientes;
     } catch (error) {
         console.error('Error al obtener usuarios clientes:', error);
