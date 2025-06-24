@@ -23,9 +23,11 @@ import {crearUsuarioCliente} from '../services/administrarUsuario';
 import {enviarImagenes} from '../services/imagenes'
 import imageBG from "../assets/Home/negrito.jpeg";
 
+
 const Registro = () => {
   const [servicios, setServicios] = useState([])
   const [infoMensaje, setInfoMensaje] = useState(null);
+  const [openMsg, setOpenMsg] = useState(false);
 
   const navigate = useNavigate();
 
@@ -39,7 +41,8 @@ const Registro = () => {
     email: '',
     esEmpleador: false,
     id_servicio: '',
-    imagen: null
+    imagen: null, 
+    id_mascota: null,
   });
 
   const [errors, setErrors] = useState({
@@ -102,18 +105,18 @@ const Registro = () => {
   const handleRegistro = async (idImagen) => {
     try {
       
-      console.log("idImagen: ", idImagen)
       formData.imagen = idImagen
       formData.imagenPreview = formData.imagenPreview ? null : null;
-      console.log("formData: ", formData)
 
 
       const respuesta = await crearUsuarioCliente(formData);
+      console.log("respuesta", respuesta)
       setInfoMensaje(respuesta.mensaje);
-      navigate("/login");
+      setOpenMsg(true)
     } catch (error) {
       console.log("Mensaje de error capturado:", error.message);
       setInfoMensaje(error.message);
+      setOpenMsg(true)
     }
   };
 
@@ -165,6 +168,12 @@ const Registro = () => {
       
     }
   };
+
+  const handleNavigate = () => {
+    if(infoMensaje === "Usuario cliente creado exitosamente"){
+      navigate("/login")
+    }
+  }
 
   const handleImagePreview = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -385,10 +394,10 @@ const Registro = () => {
      
       </Box>
       <Snackbar
-        open={infoMensaje !== null}
+        open={openMsg}
         autoHideDuration={2000}
         message={infoMensaje}
-        onClose={() => setInfoMensaje(null)}
+        onClose={handleNavigate}
       />
     </Grid>
     </Grid>

@@ -4,13 +4,13 @@ export const obtenerSolicitudesPorCliente = async (id) => {
   try {
     const response = await fetch(`${API_URL}/cliente/${id}`);
     if (!response.ok) {
-      throw new Error("Error al obtener los usuarios clientes");
+      throw new Error("Error al obtener las solicitudes");
     }
     const data = await response.json();
 
     return data; 
   } catch (error) {
-    console.error("Error al obtener los usuarios clientes", error);
+    console.error("Error al obtener las solicitudes", error);
     throw error;
   }
 };

@@ -1,27 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Avatar,
-  Box,
-  IconButton
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, Avatar, Box, IconButton
 } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
+import { enviarImagenes } from '../../services/imagenes';
 
-import {enviarImagenes} from '../../services/imagenes'
-
-const ModalEditarMascota = ({ open, onClose, onGuardar, usuario }) => {
+const ModalEditarMascota = ({ mascotaData, open, onClose, onGuardar, usuario }) => {
   const [formData, setFormData] = useState({
     nombre: '',
     edad: '',
+    descripcion: '',
     imagen: null,
     imagenPreview: null,
+    imagen_id: null,
     usuario: usuario?.id || null
   });
+
+  const [imagenActualizada, setImagenActualizada] = useState(false);
+
+  const [errors, setErrors] = useState({
+    nombre: false,
+    edad: false,
+    descripcion: false,
+    imagen: false
+  });
+
+  useEffect(() => {
+    setFormData({
+      nombre: mascotaData.nombre || '',
+      edad: mascotaData.edad || '',
+      descripcion: mascotaData.descripcion || '',
+      imagen: null,
+      imagenPreview: mascotaData.imagen_path ? `http://localhost:4000${mascotaData.imagen_path}` : null,
+      imagen_id: mascotaData.imagen || mascotaData.imagen_id || null,
+      usuario: usuario?.id || null
+    });
+    setImagenActualizada(false); // al abrir, por defecto no se modificó
+  }, [mascotaData, usuario]);
+
+  const validarCampos = () => {
+    const nuevosErrores = {
+      nombre: !formData.nombre.trim(),
+      edad: !formData.edad || isNaN(formData.edad),
+      descripcion: !formData.descripcion.trim(),
+      imagen: !formData.imagen_id && !imagenActualizada
+    };
+
+    setErrors(nuevosErrores);
+    return !Object.values(nuevosErrores).some(Boolean);
+  };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -36,6 +64,7 @@ const ModalEditarMascota = ({ open, onClose, onGuardar, usuario }) => {
           imagen: file,
           imagenPreview: reader.result
         }));
+        setImagenActualizada(true);
       };
 
       reader.readAsDataURL(file);
@@ -47,29 +76,39 @@ const ModalEditarMascota = ({ open, onClose, onGuardar, usuario }) => {
     }
   };
 
-  
   const fetchImagenes = async () => {
     const form = new FormData();
-    form.append("path", formData.imagen); 
+    form.append("path", formData.imagen);
 
     try {
       const data = await enviarImagenes(form);
       return data.id;
     } catch (error) {
-      console.error("Error al obtener las solicitudes del cliente:", error);
-    } 
+      console.error("Error al subir la imagen:", error);
+    }
   };
 
-
   const handleGuardar = async () => {
-    
-    const idImagen = await fetchImagenes()
-    formData.imagen = idImagen
-    formData.imagenPreview = formData.imagenPreview ? null : null;
+    if (!validarCampos()) return;
 
-    // Aquí puedes subir la imagen si lo necesitas y luego pasar el formData
-    onGuardar(formData);
-    onClose(); // cerrar el modal luego de guardar
+    let idImagen = formData.imagen_id;
+
+    if (imagenActualizada && formData.imagen) {
+      idImagen = await fetchImagenes();
+      if (!idImagen) return; // no continuar si falló subir la imagen
+    }
+
+    const mascotaFinal = {
+      id: mascotaData.id, // necesario si vas a hacer PUT por ID
+      nombre: formData.nombre,
+      edad: formData.edad,
+      descripcion: formData.descripcion,
+      imagen: idImagen,
+      id_usuario: formData.usuario
+    };
+
+    onGuardar(mascotaFinal);
+    onClose();
   };
 
   return (
@@ -94,6 +133,11 @@ const ModalEditarMascota = ({ open, onClose, onGuardar, usuario }) => {
               <PhotoCamera />
             </IconButton>
           </label>
+          {errors.imagen && (
+            <Box sx={{ color: 'red', fontSize: '0.75rem' }}>
+              La imagen es obligatoria
+            </Box>
+          )}
         </Box>
 
         <TextField
@@ -103,7 +147,10 @@ const ModalEditarMascota = ({ open, onClose, onGuardar, usuario }) => {
           label="Nombre"
           value={formData.nombre}
           onChange={handleChange}
+          error={errors.nombre}
+          helperText={errors.nombre ? "El nombre es obligatorio" : ""}
         />
+
         <TextField
           margin="normal"
           fullWidth
@@ -112,10 +159,23 @@ const ModalEditarMascota = ({ open, onClose, onGuardar, usuario }) => {
           type="number"
           value={formData.edad}
           onChange={handleChange}
+          error={errors.edad}
+          helperText={errors.edad ? "Edad obligatoria y numérica" : ""}
+        />
+
+        <TextField
+          margin="normal"
+          fullWidth
+          name="descripcion"
+          label="Descripción"
+          value={formData.descripcion}
+          onChange={handleChange}
+          error={errors.descripcion}
+          helperText={errors.descripcion ? "La descripción es obligatoria" : ""}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">Cancelar</Button>
+        <Button onClick={onClose}>Cancelar</Button>
         <Button onClick={handleGuardar} variant="contained" color="primary">Guardar</Button>
       </DialogActions>
     </Dialog>

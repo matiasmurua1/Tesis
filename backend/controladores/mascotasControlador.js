@@ -39,17 +39,25 @@ const createMascotas = async (req, res) => {
 // Controlador para actualizar un servicio por ID
 const updateMascota = async (req, res) => {
   const { id } = req.params;
+  const { nombre, descripcion, edad, imagen, id_usuario } = req.body;
+
+  if (!nombre || !descripcion || !edad || !imagen || !id_usuario) {
+    return res.status(400).json({ message: 'Faltan datos obligatorios' });
+  }
+
   try {
-      const result = await mascotasModelo.putMascota(id, req.body); // Llama a la función putServicio del modelo
-      if (result > 0) {
-        res.json({ message: 'Mascota actualizada con éxito' });
-      } else {
-        res.status(404).json({ message: 'Mascota no encontrado' });
-      }
+    const result = await mascotasModelo.putMascota(id, req.body);
+    if (result > 0) {
+      res.json({ message: 'Mascota actualizada con éxito' });
+    } else {
+      res.status(404).json({ message: 'Mascota no encontrada' });
+    }
   } catch (error) {
-      res.status(500).json({ message: 'Error al actualizar Mascota' });
+    console.error('Error al actualizar mascota:', error);
+    res.status(500).json({ message: 'Error al actualizar Mascota' });
   }
 };
+
 
 // Controlador para eliminar un servicio por ID
 const deleteMascota = async (req, res) => {

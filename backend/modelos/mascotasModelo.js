@@ -55,19 +55,21 @@ const postMascota = async (mascota) => {
 
 // Actualizar una mascota por ID
 const putMascota = async (id, mascota) => {
-    const connection = await getConnection();
-    const { nombre, descripcion, id_usuario } = mascota; // Extraemos los valores del objeto `mascota`
-    try {
-        const result = await connection.query(
-            'UPDATE mascota SET nombre = ?, descripcion = ?, id_usuario = ?  WHERE id = ?',
-            [nombre, descripcion, id_usuario, id]
-        );
-        return result.affectedRows; // Devuelve el número de filas actualizadas
-    } catch (error) {
-        console.error('Error al actualizar la mascota:', error);
-        throw error;
-    }
+  const connection = await getConnection();
+  const { nombre, descripcion, edad, imagen, id_usuario } = mascota;
+
+  try {
+    const result = await connection.query(
+      'UPDATE mascota SET nombre = ?, descripcion = ?, edad = ?, imagen = ?, id_usuario = ? WHERE id = ?',
+      [nombre, descripcion, edad, imagen, id_usuario, id]
+    );
+    return result.affectedRows;
+  } catch (error) {
+    console.error('Error al actualizar la mascota:', error);
+    throw error;
+  }
 };
+
 
 // Eliminar una mascota por ID
 const deleteMascota = async (id) => {

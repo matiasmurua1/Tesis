@@ -9,7 +9,7 @@ const resenasControlador = require("../controladores/resenasControlador");
 //Rutas servicios
 
 resenasRutas.get("/resenas", resenasControlador.getResenas);
-resenasRutas.post("/resenas", resenasControlador.createResena);
+resenasRutas.post("/resenas", express.json(), resenasControlador.createResena);
 resenasRutas.put("/resenas/:id", resenasControlador.updateResena);
 resenasRutas.delete("/resenas/:id", resenasControlador.deleteResena);
 

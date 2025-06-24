@@ -13,8 +13,8 @@ solicitudServicioRutas.get("/solicitudServicios/:id", solicitudServiciosControla
 solicitudServicioRutas.get("/solicitudServicios/cliente/:id", solicitudServiciosControlador.getSolicitudesServicioPorCliente);
 solicitudServicioRutas.get("/solicitudServicios/empleador/:id", solicitudServiciosControlador.getSolicitudesServicioPorEmpleador);
 solicitudServicioRutas.post("/solicitudServicios", express.json(), solicitudServiciosControlador.createSolicitudServicio);
-solicitudServicioRutas.put("/solicitudServicios/:id", solicitudServiciosControlador.updateSolicitudServicio);
-solicitudServicioRutas.patch("/solicitudServicios/:id", solicitudServiciosControlador.updateEstadoSolicitudServicio);
+solicitudServicioRutas.put("/solicitudServicios/:id",  express.json(), solicitudServiciosControlador.updateSolicitudServicio);
+solicitudServicioRutas.patch("/solicitudServicios/:id",  express.json(), solicitudServiciosControlador.updateEstadoSolicitudServicio);
 solicitudServicioRutas.delete("/solicitudServicios/:id", solicitudServiciosControlador.deleteSolicitudServicio);
 
 

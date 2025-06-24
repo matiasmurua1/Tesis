@@ -268,7 +268,7 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargar
 
       <ConfirmationModal
         open={openModalEmpleador}
-        onClose={handleVerEmpleador}
+        onClose={()=> setOpenModalEmpleador(!openModalEmpleador)}
         title="Empleador de la solicitud"
         message=""
         warning=""
@@ -299,19 +299,35 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargar
               borderRight: { md: '1px solid' },
               borderColor: { md: 'divider' }
             }}>
-              <Avatar
-                alt={usuarioEmpleador.nombre}
-                src={usuarioEmpleador.imagen || '/default-avatar.jpg'}
-                sx={{ 
-                  width: 120, 
-                  height: 120,
-                  fontSize: '3rem',
-                  mb: 2
-                }}
-              >
-                {!usuarioEmpleador.imagen && 
-                  usuarioEmpleador.nombre?.charAt(0).toUpperCase()}
-              </Avatar>
+              <div
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: "50%",
+                    fontSize: 48,
+                    marginBottom: 24,
+                    backgroundColor: usuarioEmpleador.imagen_path ? "transparent" : "#3f51b5", // primary.main
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden"
+                  }}
+                >
+                  {usuarioEmpleador.imagen_path ? (
+                    <img
+                      src={`http://localhost:4000${usuarioEmpleador.imagen_path}`}
+                      alt="avatar"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover"
+                      }}
+                    />
+                  ) : (
+                    usuarioEmpleador.nombre?.charAt(0).toUpperCase()
+                  )}
+              </div>
               
               <Box sx={{ textAlign: 'center' }}>
                 <Rating

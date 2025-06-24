@@ -140,14 +140,13 @@ const crearUsuarioCliente = async (usuarioCliente) => {
     email,
     id_rol,
     id_servicio,
-    calificacion,
     imagen
   } = usuarioCliente;
 
   try {
     const result = await connection.query(
-      'INSERT INTO usuario_cliente (nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, calificacion, imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, calificacion, imagen] 
+      'INSERT INTO usuario_cliente (nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio , imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, imagen] 
     );
     return result.insertId;
   } catch (error) {

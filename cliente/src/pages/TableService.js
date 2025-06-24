@@ -128,7 +128,7 @@ export default function TableServices() {
                             <CheckCircleIcon sx={{ color: "green", fontSize: "30px", marginTop:'10px'}}></CheckCircleIcon>
                             
                             <Typography variant='body2'> 
-                                <Link href="/mi-perfil" sx={{ textDecoration: "none", color: "#7079f0" }}>
+                                <Link href="/mi-perfil" sx={{ textDecoration: "none", color: "#7079f0", marginTop:'10px' }}>
                                     Ver listado de solicitudes de turnos
                                 </Link>
                             </Typography>

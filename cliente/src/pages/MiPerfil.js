@@ -59,6 +59,7 @@ const MiPerfil = () => {
 
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleteSolicitudSuccess, setDeleteSolicitudSuccess] = useState(false);
   
 
 
@@ -91,7 +92,6 @@ const MiPerfil = () => {
     try {
       setLoading(true);
       const data = await obtenerUsuarioClientePorID(user.id);
-      console.log("dataaa: ", data)
       setUsuario(data || {});
     } catch (error) {
       console.error("Error al obtener el usuario cliente:", error);
@@ -169,7 +169,7 @@ const MiPerfil = () => {
     try {
       await fetchBorrarSolicitudPorID(solicitudId);
 
-      setDeleteSuccess(true);
+      setDeleteSolicitudSuccess(true);
       const updatedSolicitudes = await obtenerSolicitudesPorCliente(user.id);
       setSolicitudes(updatedSolicitudes);
       
@@ -177,7 +177,7 @@ const MiPerfil = () => {
     } catch (error) {
       console.error("Error al eliminar solicitud:", error);
       // Opcional: Mostrar notificación de error
-      setDeleteSuccess(true);
+      setDeleteSolicitudSuccess(true);
     }
   };
 
@@ -300,7 +300,8 @@ const MiPerfil = () => {
                 (
                     <Grid item xs={12}  style={{marginTop: "20px"}}>
                       <MascotaCard 
-                        mascota={usuario.mascota} 
+                        mascota={usuario.mascota || {}} 
+                        onClose={fetchUsuario}
                       />
                     {/* <ProfileItem>
                       <Pets color="primary" sx={{ mr: 2 }} />
@@ -432,6 +433,12 @@ const MiPerfil = () => {
         open={deleteSuccess}
         autoHideDuration={2000}
         message="Cuenta eliminada correctamente"
+      />
+
+      <Snackbar
+        open={deleteSolicitudSuccess}
+        autoHideDuration={2000}
+        message="Solicitud eliminada correctamente"
       />
       {/* Modal de confirmación para eliminar cuenta */}
       <ConfirmationModal

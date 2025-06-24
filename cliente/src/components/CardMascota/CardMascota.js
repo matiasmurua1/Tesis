@@ -14,7 +14,7 @@ import { styled } from '@mui/material/styles';
 import ModalEditarMascota from "./ModalEditarMascota";
 import { useAuth } from "../../context/usuarioContexto";
 
-import {crearMascotaPorIdUsuario} from '../../services/mascotas'
+import {crearMascotaPorIdUsuario, editarMascotaPorId} from '../../services/mascotas'
 
 const PetAvatar = styled(Avatar)(({ theme }) => ({
   width: '100%',
@@ -25,20 +25,26 @@ const PetAvatar = styled(Avatar)(({ theme }) => ({
 
 
 
-const MascotaCard = ({ mascota }) => {
-  
+const MascotaCard = ({ mascota, onClose}) => {
   const { user} = useAuth();
   const [openModal, setOpenModal] = useState(false);
 
   const handleGuardarMascota = async (nuevaMascota) => {
     try {
-      const data = await crearMascotaPorIdUsuario(nuevaMascota);
-      console.log("Mascota data:", data);
+      let data;
+      if (mascota?.id) {
+        // Si ya tiene ID, edita
+        data = await editarMascotaPorId({ ...nuevaMascota, id: mascota.id });
+      } else {
+        // Si no tiene ID, crea
+        data = await crearMascotaPorIdUsuario(nuevaMascota);
+      }
 
+      onClose();
       return data.id;
     } catch (error) {
-      console.error("Error al obtener las solicitudes del cliente:", error);
-    } 
+      console.error("Error al guardar mascota:", error);
+    }
   };
 
   return (
@@ -72,9 +78,8 @@ const MascotaCard = ({ mascota }) => {
           color: 'primary.main',
           mt: 2
         }}
-        // onCick={openModalEdit(true)}
       >
-        {mascota.nombre || 'Mi Mascota'}
+        {mascota?.nombre || 'Mi Mascota'}
       </Typography>
 
       <Divider sx={{ my: 2 }} />
@@ -94,7 +99,8 @@ const MascotaCard = ({ mascota }) => {
                     borderRadius: "50%",
                     fontSize: 48,
                     marginBottom: 24,
-                    backgroundColor: mascota.imagen_path ? "transparent" : "#3f51b5", // primary.main
+                    marginLeft: 10,
+                    backgroundColor: mascota?.imagen_path ? "transparent" : "#3f51b5", // primary.main
                     color: "#fff",
                     display: "flex",
                     alignItems: "center",
@@ -102,9 +108,9 @@ const MascotaCard = ({ mascota }) => {
                     overflow: "hidden"
                   }}
                 >
-                  {mascota.imagen_path ? (
+                  {mascota?.imagen_path ? (
                     <img
-                      src={`http://localhost:4000${mascota.imagen_path}`}
+                      src={`http://localhost:4000${mascota?.imagen_path}`}
                       alt="avatar"
                       style={{
                         width: "100%",
@@ -121,26 +127,34 @@ const MascotaCard = ({ mascota }) => {
 
         {/* Columna derecha - Información */}
         <Grid item xs={12} md={7}>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="subtitle1" color="text.secondary">
-              Edad
-            </Typography>
-            <Typography variant="h6">
-              {mascota.edad}
-            </Typography>
-          </Box>
+          {
+            mascota.edad && mascota.descripcion ? <div>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" color="text.secondary">
+                Edad
+              </Typography>
+              <Typography variant="h6">
+                {mascota?.edad}
+              </Typography>
+            </Box>
 
-          <Box>
-            <Typography variant="subtitle1" color="text.secondary">
-              Descripcion
-            </Typography>
-            <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
-              {mascota.descripcion}
-            </Typography>
-          </Box>
+              <Box>
+                <Typography variant="subtitle1" color="text.secondary">
+                  Descripcion
+                </Typography>
+                <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
+                  {mascota?.descripcion}
+                </Typography>
+              </Box>
+            </div> : 
+              <Typography variant="subtitle1" color="text.secondary">
+                 Toque el lapiz para cargar su mascota
+              </Typography>
+            }
         </Grid>
       </Grid>
       <ModalEditarMascota
+        mascotaData={mascota}
         open={openModal}
         onClose={() => setOpenModal(false)}
         onGuardar={handleGuardarMascota}

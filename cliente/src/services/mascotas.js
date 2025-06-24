@@ -37,3 +37,14 @@ export const crearMascotaPorIdUsuario = async (mascota) => {
     throw error;
   }
 };
+
+export const editarMascotaPorId = async (mascota) => {
+  const res = await fetch(`${API_URL}/${mascota.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(mascota),
+  });
+  return await res.json();
+};

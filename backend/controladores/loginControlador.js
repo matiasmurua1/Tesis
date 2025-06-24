@@ -7,13 +7,17 @@ const loginUsuario = async (req, res) => {
 
     // Validar que el email y la contraseña estén presentes
     if (!email || !contrasena) {
-        return res.status(400).json({ mensaje: 'email y contraseña son obligatorios' });
+        return res.status(400).json({ mensaje: 'Email y contraseña son obligatorios' });
     }
 
     try {
         // Obtener el usuario por email y contraseña
         let permisos;
         const usuario = await loginModelo.mostrarUsuarioClientePorEmailYContrasena(email, contrasena);
+        if (!usuario) {
+            return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
+        }
+
         switch (usuario.id_rol) {
             case 1:
                 permisos = 'EMPLEADOR';
@@ -32,9 +36,6 @@ const loginUsuario = async (req, res) => {
             direccion: usuario.direccion
           }
         const token = jwt.sign(payload, "token", { expiresIn: "1h" });
-        if (!usuario) {
-            return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
-        }
 
         // Respuesta exitosa sin incluir `statuscode` innecesario
         return res.status(200).json({ mensaje: 'Login exitoso', token });

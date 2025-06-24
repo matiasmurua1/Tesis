@@ -88,6 +88,7 @@ const Solicitudes = () => {
         try {
             if( id ){
                 const data = await obtenerUsuarioClientePorID(id)
+                console.log("aaaaaaacliente", data)
                 setUsuario(data || {});
             }
         } catch (error) {
@@ -206,14 +207,34 @@ const Solicitudes = () => {
                                         </Grid>
                                         <Grid>
                                             
-                                        <Avatar sx={{ 
-                                            width: 80, 
-                                            height: 80, 
-                                            fontSize: 48, 
-                                            bgcolor: 'primary.main'
-                                            }}>
-                                            {getInitials(usuario?.nombre)}
-                                        </Avatar>
+                                         <div
+                                            style={{
+                                                width: 70,
+                                                height: 70,
+                                                borderRadius: "50%",
+                                                fontSize: 48,
+                                                backgroundColor: usuario?.imagen_path ? "transparent" : "#3f51b5", // primary.main
+                                                color: "#fff",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                overflow: "hidden"
+                                            }}
+                                            >
+                                            {usuario.imagen_path ? (
+                                                <img
+                                                src={`http://localhost:4000${usuario?.imagen_path}`}
+                                                alt="avatar"
+                                                style={{
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    objectFit: "cover"
+                                                }}
+                                                />
+                                            ) : (
+                                                getInitials(usuario.nombre)
+                                            )}
+                                            </div>
                                         
                                         </Grid>
                                     </Grid>
@@ -246,21 +267,37 @@ const Solicitudes = () => {
                                             <Typography>{usuario?.mascota.nombre}</Typography>
                                         </Grid>
                                         <Grid>
-                                                
-                                            <Avatar sx={{ 
-                                                width: 80, 
-                                                height: 80, 
-                                                fontSize: 48, 
-                                                bgcolor: 'primary.main'
-                                                }}>
-                                                {getInitials(usuario?.mascota.nombre)}
-                                            </Avatar>
-
+                                            <div
+                                                style={{
+                                                    width: 70,
+                                                    height: 70,
+                                                    borderRadius: "50%",
+                                                    fontSize: 48,
+                                                    backgroundColor: usuario?.mascota?.imagen_path ? "transparent" : "#3f51b5", // primary.main
+                                                    color: "#fff",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    overflow: "hidden"
+                                                }}
+                                                >
+                                                {usuario.imagen_path ? (
+                                                    <img
+                                                    src={`http://localhost:4000${usuario?.mascota.imagen_path}`}
+                                                    alt="avatar"
+                                                    style={{
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        objectFit: "cover"
+                                                    }}
+                                                    />
+                                                ) : (
+                                                    getInitials(usuario?.mascota.nombre)
+                                                )}
+                                            </div>
                                         </Grid>
                                     </Grid>
 
-                                    <Divider sx={{ mb: 3 }} />
-                                    
                                 </Grid>
                         </Grid>
                     </DialogContentText>
