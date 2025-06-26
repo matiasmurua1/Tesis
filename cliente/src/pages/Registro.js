@@ -114,7 +114,6 @@ const Registro = () => {
       setInfoMensaje(respuesta.mensaje);
       setOpenMsg(true)
     } catch (error) {
-      console.log("Mensaje de error capturado:", error.message);
       setInfoMensaje(error.message);
       setOpenMsg(true)
     }
@@ -149,7 +148,7 @@ const Registro = () => {
       const idImagen = await fetchImagenes()
       // Aquí iría la lógica para enviar los datos al backend
       handleRegistro(idImagen); // Llama a la función de registro
-
+      
 
       // Resetear el formulario
         // setFormData({
@@ -168,9 +167,11 @@ const Registro = () => {
       
     }
   };
-
+  
+  
   const handleNavigate = () => {
-    if(infoMensaje === "Usuario cliente creado exitosamente"){
+    
+    if(infoMensaje === "Usuario creado exitosamente"){
       navigate("/login")
     }
   }
