@@ -8,7 +8,7 @@ const mostrarUsuarioClientePorEmailYContrasena = async (email, contrasena) => {
     const connection = await getConnection();
     try {
         const [usuario] = await connection.query(
-            'SELECT * FROM usuario_cliente WHERE email = ? AND contrasena = ?',
+            'SELECT * FROM usuario WHERE email = ? AND contrasena = ?',
             [email, contrasena]
         );
         return usuario;

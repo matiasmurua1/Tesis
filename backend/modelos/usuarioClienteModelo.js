@@ -28,7 +28,7 @@ const mostrarUsuarioClientePorID = async (id) => {
                 im.id             AS mascota_imagen_id,
                 im.path           AS mascota_imagen_ruta
 
-            FROM usuario_cliente uc
+            FROM usuario uc
             LEFT JOIN mascota m
                 ON uc.id_mascota = m.id
             LEFT JOIN imagen i
@@ -72,7 +72,7 @@ const mostrarUsuarioClientePorID = async (id) => {
 const mostrarUsuarioClientePorEmail = async (email) => {
     const connection = await getConnection();
     try {
-        const usuariosCliente = await connection.query('SELECT * FROM usuario_cliente where email = ?', [email]);
+        const usuariosCliente = await connection.query('SELECT * FROM usuario where email = ?', [email]);
         return usuariosCliente;
     } catch (error) {
         console.error('Error al obtener usuarios clientes:', error);
@@ -82,7 +82,7 @@ const mostrarUsuarioClientePorEmail = async (email) => {
 const mostrarUsuarioClientePorDNI = async (dni_cuit) => {
     const connection = await getConnection();
     try {
-        const usuariosClientes = await connection.query('SELECT * FROM usuario_cliente where dni_cuit = ?', [dni_cuit]);
+        const usuariosClientes = await connection.query('SELECT * FROM usuario where dni_cuit = ?', [dni_cuit]);
         return usuariosClientes;
     } catch (error) {
         console.error('Error al obtener usuarios clientes:', error);
@@ -97,7 +97,7 @@ const mostrarUsuariosClientes = async () => {
             SELECT uc.*,
             i.id AS imagen_id,
             i.path AS imagen_ruta,
-            FROM usuario_cliente uc
+            FROM usuario uc
             LEFT JOIN imagen i ON uc.imagen = i.id
     `);
         return usuariosClientes;
@@ -115,7 +115,7 @@ const mostrarUsuariosEmpleadores = async () => {
                 uc.*,
                 i.id AS imagen_id,
                 i.path AS imagen_path
-            FROM usuario_cliente uc
+            FROM usuario uc
             LEFT JOIN imagen i ON uc.imagen = i.id
             WHERE uc.id_rol = 1
         `);
@@ -145,7 +145,7 @@ const crearUsuarioCliente = async (usuarioCliente) => {
 
   try {
     const result = await connection.query(
-      'INSERT INTO usuario_cliente (nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio , imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO usuario (nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio , imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_rol, id_servicio, imagen] 
     );
     return result.insertId;
@@ -161,7 +161,7 @@ const actualizarUsuarioCliente = async (id, usuarioCliente) => {
     const { nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_servicio, calificacion } = usuarioCliente; // Extrae los valores del objeto `usuarioCliente`
     try {
         const result = await connection.query(
-            'UPDATE usuario_cliente SET nombre = ?, contrasena = ?, dni_cuit = ?, telefono = ?, direccion = ?, id_mascota = ?, email = ?, id_servicio = ?, calificacion = ? WHERE id = ?',
+            'UPDATE usuario SET nombre = ?, contrasena = ?, dni_cuit = ?, telefono = ?, direccion = ?, id_mascota = ?, email = ?, id_servicio = ?, calificacion = ? WHERE id = ?',
             [nombre, contrasena, dni_cuit, telefono, direccion, id_mascota, email, id_servicio,calificacion,id]);
         return result.affectedRows; 
     } catch (error) {
@@ -176,7 +176,7 @@ const asignarMascotaUsuarioCliente = async (idMascota, idUsuarioCliente) => {
   console.log("body asignarMascotaUsuarioCliente",{idMascota, idUsuarioCliente} )
     try {
         const result = await connection.query(
-            'UPDATE usuario_cliente SET id_mascota = ? WHERE id = ?',
+            'UPDATE usuario SET id_mascota = ? WHERE id = ?',
             [idMascota, idUsuarioCliente]);
         return result.affectedRows; 
     } catch (error) {
@@ -197,7 +197,7 @@ const calificarEmpleador = async (id_usuario_empleador) => {
         const calificacionPromedio = Math.round(rows.promedio || 0);
 
         const result = await connection.query(
-            'UPDATE usuario_cliente SET calificacion = ? WHERE id = ?',
+            'UPDATE usuario SET calificacion = ? WHERE id = ?',
             [calificacionPromedio, id_usuario_empleador]
         );
 
@@ -214,7 +214,7 @@ const eliminarUsuarioCliente = async (idUsuarioCliente) => {
     const connection = await getConnection();
     try {
         const result = await connection.query(
-            'DELETE FROM usuario_cliente WHERE id = ?',
+            'DELETE FROM usuario WHERE id = ?',
             [idUsuarioCliente]
         );
         return result.affectedRows; // Devuelve el número de filas eliminadas
