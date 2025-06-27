@@ -92,6 +92,7 @@ const MiPerfil = () => {
     try {
       setLoading(true);
       const data = await obtenerUsuarioClientePorID(user.id);
+      console.log("data Usuario:", data)
       setUsuario(data || {});
     } catch (error) {
       console.error("Error al obtener el usuario cliente:", error);

@@ -4,7 +4,7 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneEnabledIcon from '@mui/icons-material/PhoneEnabled';
-import { Button, Link} from '@mui/material';
+import { Button, Link, IconButton, TextField} from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import CustomStars from '../components/CustomStars/CustomStars';
@@ -24,6 +24,8 @@ import defaultImg from '../assets/Home/defaultImg.jpeg'
 import {obtenerServicios} from '../services/servicios'
 import { enviarSolicitudes } from '../services/solicitudes';
 import { useAuth } from "../context/usuarioContexto";
+import { useNavigate } from "react-router-dom";
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 
 
 export default function TableServices() {
@@ -37,10 +39,12 @@ export default function TableServices() {
     const [msg, setMsg] = useState("")
     const [empleadores, setEmpleadores] = useState([])
     const [empleadorSolicitud, setEmpleadorSolicitud] = useState({})
-
-
+    const [modalRegitrarMascota, setModalRegitrarMascota] = useState(false)
+    const [filtroCalificacion, setFiltroCalificacion] = useState(null);
+    const navigate = useNavigate();
     const [servicioSeleccionado, setServicioSeleccionado] = useState()
-    
+    const [filtroUbicacion, setFiltroUbicacion] = useState('');
+
     useEffect(() => {
         fetchServicios();
         fetchEmpledores();
@@ -96,12 +100,43 @@ export default function TableServices() {
         }
     };
 
-    const abrirModalTurno = () => {
-        setModalTurno(!modalTurno)
+    const abrirModalTurno = async () => {
+        const usuarioCliente = await obtenerUsuarioClientePorID(user.id);
+
+        if(!usuarioCliente.mascota){
+            setModalRegitrarMascota(!modalRegitrarMascota)
+        } else {
+            setModalTurno(!modalTurno)
+        }
     }
+
+    
+    const abrirModalMascota = async () => {
+        setModalRegitrarMascota(!modalRegitrarMascota)
+    }
+
+    const handlerRedirect = async () => {
+        navigate("/mi-perfil");
+    } 
+
 
     const abrirModalMsg = () => {
         setAbrirModalMsg(!modalMsg)
+    }
+
+    function MensajeMascota() {
+        return (
+            <Grid size={12} display='flex' justifyContent='center' alignItems='center' flexDirection='column'>
+                    <Typography variant='body1'>Usted no ha registrado su mascota aun.
+                    </Typography>
+                    <Typography variant='body1'>Porfavor cargue a su mascota en su  
+                        {' '}
+                        <Link href="/mi-perfil" sx={{ color: "#7079f0", marginTop:'10px' }}>
+                                    perfil
+                                </Link> 
+                    </Typography>
+            </Grid>
+        )
     }
 
     function MensajeExitoso() {
@@ -172,6 +207,21 @@ export default function TableServices() {
         )
     }
 
+    const handleFiltroCalificacion = (valor) => {
+        setFiltroCalificacion(valor);
+    };
+
+
+   const empleadoresFiltrados = empleadores
+        .filter((empleador) =>
+            filtroCalificacion ? empleador.calificacion >= filtroCalificacion : true
+        )
+        .filter((empleador) =>
+            filtroUbicacion
+            ? empleador.direccion?.toLowerCase().includes(filtroUbicacion.toLowerCase())
+            : true
+        );
+
     return (
         <Grid container display='flex' justifyContent="center" alignItems="start" spacing={5}>
             <Grid size={12} display='flex' justifyContent="center" sx={{ marginTop: 5 }}>
@@ -179,34 +229,68 @@ export default function TableServices() {
                     {servicioSeleccionado?.nombre}
                 </Typography>
             </Grid>
-            <Grid size={2} sx={{ height: '550px', borderRight: 'solid #474963 1px' }}>
+            <Grid size={3} sx={{ height: '550px', paddingRight: '10px', borderRight: 'solid #474963 1px' }}>
                 <Grid>
                     <Typography variant='h6'>
                         Filtros
                     </Typography>
                 </Grid>
                 <Grid container alignItems="flex-start" flexDirection='column'>
-                    <Grid size={12}>
-                        <Typography variant='subtitle2'>
-                            Calidad
-                        </Typography>
+                    <Grid size={12} 
+                        sx={{marginTop: '10px'}}>
+                    <Typography variant='subtitle2'>Calidad</Typography>
                     </Grid>
-                    <Grid size={4}>
-                        <StarIcon sx={{ color: '#c5c537' }}></StarIcon>
-                        <StarIcon sx={{ color: '#c5c537' }}></StarIcon>
-                        <StarIcon sx={{ color: '#c5c537' }}></StarIcon>
-                        <StarIcon sx={{ color: '#c5c537' }}></StarIcon>
-                        <StarBorderIcon></StarBorderIcon>
+                    <Grid size={4} display="flex">
+                        {[1, 2, 3, 4, 5].map((valor) => (
+                            <IconButton
+                            key={valor}
+                            onClick={() => handleFiltroCalificacion(valor)}
+                            sx={{ padding: 0 }}
+                            >
+                            {valor <= filtroCalificacion ? (
+                                <StarIcon sx={{ color: '#c5c537' }} />
+                            ) : (
+                                <StarBorderIcon />
+                            )}
+                            </IconButton>
+                        ))}
                     </Grid>
+
+
+                    <Grid size={12} 
+                        sx={{marginTop: '10px'}}>
+                    <   Typography variant='subtitle2'>Buscar por ubicación</Typography>
+                    </Grid>
+                    <TextField
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        value={filtroUbicacion}
+                        onChange={(e) => setFiltroUbicacion(e.target.value)}
+                    />
                 </Grid>
+                
+
+                <Button
+                    sx={{marginTop: '30px'}}
+                    variant="text"
+                    size="small"
+                    onClick={() => {
+                        setFiltroCalificacion(null);
+                        setFiltroUbicacion('');
+                    }}
+                    >
+                    Limpiar filtros
+                </Button>
             </Grid>
-            <Grid size={8} container spacing={2}>
+            
+            <Grid size={7} container spacing={2}>
                 <Grid size={12}>
                     <Typography variant='h6'>
                         Ubicaciones
                     </Typography>
                 </Grid>
-                {empleadores.map((local, index) => (
+                {empleadoresFiltrados.map((local, index) => (
                     <Grid key={index} container size={12} sx={{ height: '160px', border: ' solid #474963 1px', borderRadius: '10px', boxShadow: '4px 4px 4px 2px rgba(0, 0, 0, 0.1)' }} justifyContent='space-evenly'>
                         <Grid display="flex" justifyContent="center">
                             <div
@@ -248,14 +332,10 @@ export default function TableServices() {
                                 <PhoneEnabledIcon fontSize='small' sx={{ marginRight: '4px' }}></PhoneEnabledIcon>
                                 {local.telefono}
                             </Typography>
-                            {/* <Typography variant='body1' display="flex" alignItems="center">
-                                <InstagramIcon fontSize='small' sx={{ marginRight: '4px' }}></InstagramIcon>
-                                {local.ig}
-                            </Typography> */}
                         </Grid>
                         <Grid size={3} container justifyContent='center' alignContent='center'>
                             <Grid >
-                                <CustomStars calification={local.calificacion || '3' } ></CustomStars>
+                                <CustomStars calification={local.calificacion } ></CustomStars>
                             </Grid>
                             <Grid>
                                 <Button variant="outlined" color="primary" onClick={abrirModalTurno}>Solicitar Turno</Button>
@@ -263,8 +343,22 @@ export default function TableServices() {
                         </Grid>
                         <CustomModal abierto={modalTurno} abrirModal={abrirModalTurno} handler={() => fetchEnviarSolicitudes(local.id)} title="Alta de turno" children={<FormSolicitudServicio />}></CustomModal>
                         <CustomModal abierto={modalMsg} abrirModal={abrirModalMsg} handler={() => fetchEnviarSolicitudes(local.id)} title={msg} children={<MensajeExitoso />}  confirmarBtn={false}></CustomModal>
+                        <CustomModal abierto={modalRegitrarMascota} abrirModal={abrirModalMascota} title="Registre su mascota" handler={() => handlerRedirect()} children={<MensajeMascota/>}  confirmarBtn={false}></CustomModal>
                     </Grid>
                 ))}
+                
+
+                {empleadoresFiltrados.length === 0 && (
+                <Grid item xs={12} display="flex" flexDirection="column" alignItems="center" mt={5} sx={{ width:"100%"}}>
+                    <SentimentDissatisfiedIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+                    <Typography variant="h6" color="textSecondary" align="center">
+                    No se encontraron empleadores con esta calificación
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" align="center">
+                    Probá ajustando los filtros para ver más opciones disponibles.
+                    </Typography>
+                </Grid>
+                )}
             </Grid>
             
         </Grid>

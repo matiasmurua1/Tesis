@@ -11,6 +11,7 @@ const mostrarUsuarioClientePorID = async (id) => {
                 uc.contrasena,
                 uc.dni_cuit,
                 uc.telefono,
+                uc.calificacion,
                 uc.direccion,
                 uc.id_mascota,
                 uc.email,
@@ -45,6 +46,7 @@ const mostrarUsuarioClientePorID = async (id) => {
             contrasena: usuariosClientes.contrasena,
             dni_cuit: usuariosClientes.dni_cuit,
             telefono: usuariosClientes.telefono,
+            calificacion:usuariosClientes.calificacion,
             direccion: usuariosClientes.direccion,
             id_mascota: usuariosClientes.id_mascota,
             email: usuariosClientes.email,
@@ -173,7 +175,7 @@ const actualizarUsuarioCliente = async (id, usuarioCliente) => {
 const asignarMascotaUsuarioCliente = async (idMascota, idUsuarioCliente) => {
     const connection = await getConnection();
     
-  console.log("body asignarMascotaUsuarioCliente",{idMascota, idUsuarioCliente} )
+    console.log("body asignarMascotaUsuarioCliente",{idMascota, idUsuarioCliente} )
     try {
         const result = await connection.query(
             'UPDATE usuario SET id_mascota = ? WHERE id = ?',

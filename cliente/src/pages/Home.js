@@ -1,6 +1,9 @@
 import React from "react";
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
+import {
+  Typography,
+  Link
+} from '@mui/material';
 import MaterialCard from '../components/Card/Card';
 import imageBG from '../assets/Home/home2.jpg';
 import { mockServices } from '../utils/mockServices';
@@ -149,7 +152,9 @@ export default function Home() {
                 fontSize: '1.1rem'
               }}
             >
-              Reservar Ahora
+              <Link href="/servicios" sx={{ textDecoration: "none", color: "inherit" }}>
+                Reservar Ahora
+              </Link>
             </Button>
           </Box>
         </Container>

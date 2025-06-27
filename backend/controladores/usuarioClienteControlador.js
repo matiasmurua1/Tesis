@@ -50,7 +50,6 @@ const postUsuarioCliente = async (req, res) => {
     // Verificar si el email ya existe
     const usuarioExistente = await usuarioClienteModelo.mostrarUsuarioClientePorEmail(email);
     if (usuarioExistente.length != 0) {
-        console.log("usuario maaaaaaaail: ", usuarioExistente)
         return res.status(400).json({ mensaje: 'El email ya está en uso' });
     }
     // Verificar si el DNI/CUIT ya existe

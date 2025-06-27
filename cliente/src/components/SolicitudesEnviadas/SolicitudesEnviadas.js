@@ -32,7 +32,8 @@ import {
 import { AccessTime, Delete, Visibility, Email, Phone, Home  } from "@mui/icons-material";
 import ConfirmationModal from "../ConfirmarModal/ConfirmarModal";
 import { obtenerUsuarioClientePorID } from "../../services/administrarUsuario";
-import {mayuscPrimeraLetra} from '../../utils/utils';
+import {mayuscPrimeraLetra, formatFecha, formatHora} from '../../utils/utils'
+
 import {enviarCalificacion} from '../../services/resena'
 
 const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargarSolicitudes }) => {
@@ -84,7 +85,8 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargar
     try {
       setLoadingEmpleador(true);
       const data = await obtenerUsuarioClientePorID(id);
-      setUsuarioEmpleador(data || {});
+      console.log("usuarioEmpleador::", data)
+      setUsuarioEmpleador(data);
     } catch (error) {
       console.error("Error al obtener el usuario cliente:", error);
       setLoadingEmpleador(false);
@@ -107,17 +109,7 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargar
     handleCloseDelete();
   };
 
-  // Función para formatear la fecha
-  const formatFecha = (fechaISO) => {
-    const fecha = new Date(fechaISO);
-    return fecha.toLocaleDateString('es-ES');
-  };
 
-  // Función para formatear la hora
-  const formatHora = (fechaISO) => {
-    const fecha = new Date(fechaISO);
-    return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  };
 
   // Obtener nombre del servicio basado en id_servicio
   const getTipoServicio = (idServicio) => {
@@ -213,14 +205,17 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargar
                         >
                           Ver empleador
                         </Button>
-                        <Button 
+                        {
+                          solicitud.estado == "finalizada" 
+                          ? null 
+                          : (<Button 
                           size="small" 
                           startIcon={<Delete />}
                           onClick={() => handleOpenDelete(solicitud)}
                           color="error"
                         >
                           Cancelar
-                        </Button>
+                        </Button>)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -331,15 +326,12 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargar
               
               <Box sx={{ textAlign: 'center' }}>
                 <Rating
-                  value={usuarioEmpleador.rating || 0}
-                  precision={0.5}
+                  value={usuarioEmpleador.calificacion}
+                  precision={1}
                   readOnly
                   emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
                   sx={{ color: 'warning.main' }}
                 />
-                <Typography variant="body2" color="text.secondary">
-                  ({usuarioEmpleador.reviewsCount || 0} reseñas)
-                </Typography>
                 
                 {usuarioEmpleador.verificado && (
                   <Chip

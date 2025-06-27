@@ -28,7 +28,7 @@ const createMascotas = async (req, res) => {
       const result = await mascotasModelo.postMascota(req.body); // Llama a la función postMascota del modelo
       res.status(201).json({ message: 'Mascota creada con éxito', insertId: result });
       if(res.status(201)){
-          await usuarioClienteModelo.asignarMascotaUsuarioCliente(result, req.body.usuario);
+          await usuarioClienteModelo.asignarMascotaUsuarioCliente(result, req.body.id_usuario);
       }
 
   } catch (error) {

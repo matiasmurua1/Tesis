@@ -28,3 +28,13 @@ export function formatearFechaLocal(datetimeStr) {
 export const mayuscPrimeraLetra = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
+
+export const formatFecha = (fechaISO) => {
+    const fecha = new Date(fechaISO);
+  return fecha.toLocaleDateString('es-ES');
+};
+
+export  const formatHora = (fechaISO) => {
+    const fecha = new Date(fechaISO);
+  return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+};

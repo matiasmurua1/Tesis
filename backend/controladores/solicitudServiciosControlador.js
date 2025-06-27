@@ -42,6 +42,7 @@ const getSolicitudesServicioPorEmpleador = async (req, res) => {
   const { id } = req.params;
   try {
     const solicitudes = await solicitudServicioModelo.getSolicitudesServicioPorEmpleador(id); 
+
     res.json(solicitudes);
   } catch (error) {
     console.error('Error al obtener solicitudes de servicio:', error);

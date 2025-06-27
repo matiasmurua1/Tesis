@@ -42,7 +42,7 @@ import {obtenerServicios} from '../services/servicios'
 import {obtenerUsuarioClientePorID} from '../services/administrarUsuario'
 import ConfirmationModal from '../components/ConfirmarModal/ConfirmarModal';
 
-import {mayuscPrimeraLetra} from '../utils/utils'
+import {mayuscPrimeraLetra, formatFecha, formatHora} from '../utils/utils'
 
 import { useAuth } from "../context/usuarioContexto";
 
@@ -59,6 +59,7 @@ const Solicitudes = () => {
     const [openRechazarModal, setOpenRechazarModal] = useState(false)
 
     const fetchSolicitudes = async () => {
+
         try {
             const data = await obtenerSolicitudesPorEmpleador(user.id);
             setSolicitudesRecibidas(data.filter(solicitud => solicitud.estado === 'pendiente' || solicitud.estado === 'aceptada' ) || []);
@@ -221,7 +222,7 @@ const Solicitudes = () => {
                                                 overflow: "hidden"
                                             }}
                                             >
-                                            {usuario.imagen_path ? (
+                                            {usuario?.imagen_path ? (
                                                 <img
                                                 src={`http://localhost:4000${usuario?.imagen_path}`}
                                                 alt="avatar"
@@ -232,7 +233,7 @@ const Solicitudes = () => {
                                                 }}
                                                 />
                                             ) : (
-                                                getInitials(usuario.nombre)
+                                                getInitials(usuario?.nombre)
                                             )}
                                             </div>
                                         
@@ -255,16 +256,11 @@ const Solicitudes = () => {
                                         <Typography variant="caption" color="text.primary">Dirección</Typography>
                                         <Typography>{usuario?.direccion || 'No especificada'}</Typography>
                                     </Grid>
-                                    
-                                    <Grid item size={6} sx={{marginBottom: '15px'}}>
-                                        <Typography variant="caption" color="text.primary">Email</Typography>
-                                        <Typography>{usuario?.email}</Typography>
-                                    </Grid>
 
                                     <Grid item size={12} sx={{marginBottom: '15px'}} display='flex' justifyContent='space-between'>
                                         <Grid>
                                             <Typography variant="caption" color="text.primary">Mascota</Typography>
-                                            <Typography>{usuario?.mascota.nombre}</Typography>
+                                            <Typography>{usuario?.mascota?.nombre}</Typography>
                                         </Grid>
                                         <Grid>
                                             <div
@@ -281,7 +277,7 @@ const Solicitudes = () => {
                                                     overflow: "hidden"
                                                 }}
                                                 >
-                                                {usuario.imagen_path ? (
+                                                {usuario?.imagen_path ? (
                                                     <img
                                                     src={`http://localhost:4000${usuario?.mascota.imagen_path}`}
                                                     alt="avatar"
@@ -292,7 +288,7 @@ const Solicitudes = () => {
                                                     }}
                                                     />
                                                 ) : (
-                                                    getInitials(usuario?.mascota.nombre)
+                                                    getInitials(usuario?.mascota?.nombre)
                                                 )}
                                             </div>
                                         </Grid>
@@ -369,7 +365,7 @@ const Solicitudes = () => {
                                 </Avatar>
                                 <Box>
                                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Fecha:</Typography>
-                                    <Typography variant="body1">{solicitudEnProgreso?.fecha_hora?.split('T')[0]}</Typography>
+                                    <Typography variant="body1">{formatFecha(solicitudEnProgreso?.fecha_hora)}</Typography>
                                 </Box>
                                 </Stack>
 
@@ -446,8 +442,8 @@ const Solicitudes = () => {
                             </TableCell>
                             
                             <TableCell>{mayuscPrimeraLetra(solicitud.estado)}</TableCell>
-                            <TableCell>{solicitud.fecha_hora.split('T')[0]}</TableCell>
-                            <TableCell>{solicitud.fecha_hora.split('T')[1].split('.')[0]}</TableCell>
+                            <TableCell>{formatFecha(solicitud.fecha_hora)}</TableCell>
+                            <TableCell>{formatHora(solicitud.fecha_hora)}</TableCell>
                             <TableCell align="right">
                             <Stack direction="row" spacing={1} justifyContent="flex-end">
 
@@ -536,7 +532,7 @@ const Solicitudes = () => {
                                 {servicios.filter(servi => servi.id == servicio.id_servicio)[0]?.nombre}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                {servicio.fecha_hora.split('T')[0]} · {servicio.fecha_hora.split('T')[1].split('.')[0]}
+                                {formatFecha(servicio.fecha_hora)} · {formatHora(servicio.fecha_hora)}
                             </Typography>
                             </Box>
                             
