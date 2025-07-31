@@ -537,23 +537,32 @@ const Solicitudes = () => {
                             </Box>
                             
                             <Grid container direction="row" spacing={2} alignItems="center">
-                                <Grid item display='flex' flexDirection="column" alignItems='center'>
-                                    <Rating 
-                                        value={servicio.puntaje} 
-                                        readOnly 
-                                        precision={0.5} 
-                                        size="small" 
-                                    />
+                                
+                                    {
+                                    servicio.puntaje ? 
+                                        (
+                                        <Grid item display='flex' flexDirection="column" alignItems='center'>
+                                            <Rating 
+                                            value={servicio.puntaje} 
+                                            readOnly 
+                                            precision={0.5} 
+                                            size="small" 
+                                            />
+                                            <Button 
+                                                variant="text" 
+                                                size='small' 
+                                                onClick={() => handleVerCliente(servicio)}
+                                                sx={{ marginLeft: '5px', textTransform: "capitalize"}} 
+                                            >
+                                                Ver reseña
+                                            </Button>
+                                        </Grid>
+                                        )
+                                        :  (<Typography variant="body2" color="text.secondary">
+                                                Reseña del cliente pendiente
+                                            </Typography>)                            
+                                    }
                                     
-                                    <Button 
-                                        variant="text" 
-                                        size='small' 
-                                        onClick={() => handleVerCliente(servicio)}
-                                        sx={{ marginLeft: '5px', textTransform: "capitalize"}} 
-                                    >
-                                        Ver reseña
-                                    </Button>
-                                </Grid>
                             </Grid>
                         </Stack>
                         </CardContent>

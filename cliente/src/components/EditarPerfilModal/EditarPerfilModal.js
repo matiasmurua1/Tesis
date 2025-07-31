@@ -23,7 +23,8 @@ const EditarPerfilModal = ({
   onFormChange,
   onSave,
   mostrarContrasena,
-  toggleMostrarContrasena
+  toggleMostrarContrasena,
+  mostrarOpcionesServicios
 }) => {
   const [servicios, setServicios] = useState([]);
   
@@ -141,23 +142,23 @@ const EditarPerfilModal = ({
 
           <Grid item xs={12}>
            
-            <Select
-              fullWidth 
-              margin="normal" 
-              type="text" 
-              label="Servicio" 
-              name="id_servicio" 
-              value={formData.id_servicio} 
-              onChange={onFormChange}
-              variant="outlined"
-            > 
-            {servicios.map((servicio, index) => (
-                <MenuItem value={servicio.id} key={servicio.id}>
-                  {servicio.nombre}
-                </MenuItem>
-            ))
-            }
-            </Select>
+            {mostrarOpcionesServicios && (
+          <Select
+            fullWidth
+            margin="normal"
+            label="Servicio"
+            name="id_servicio"
+            value={formData.id_servicio}
+            onChange={onFormChange}
+            variant="outlined"
+          >
+            {servicios.map((servicio) => (
+              <MenuItem key={servicio.id} value={servicio.id}>
+                {servicio.nombre}
+              </MenuItem>
+            ))}
+          </Select>
+            )}
           </Grid>
 
         </Grid>

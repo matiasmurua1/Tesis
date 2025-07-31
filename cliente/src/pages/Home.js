@@ -1,4 +1,5 @@
 import React from "react";
+import { useAuth } from "../context/usuarioContexto";
 import Grid from '@mui/material/Grid';
 import {
   Typography,
@@ -28,6 +29,9 @@ const theme = createTheme({
   });
 
 export default function Home() {
+
+  const { user } = useAuth(); 
+
   return (
       <Box
         sx={{
@@ -140,22 +144,28 @@ export default function Home() {
             <Typography variant="h6" sx={{ mb: 4 }}>
               Agenda una cita hoy mismo y dale a tu compañero peludo el cuidado que se merece
             </Typography>
-            <Button 
-              variant="contained" 
-              color="secondary" 
-              size="large"
-              startIcon={<PetsIcon />}
-              sx={{ 
-                borderRadius: '50px',
-                padding: '12px 36px',
-                fontWeight: 'bold',
-                fontSize: '1.1rem'
-              }}
-            >
-              <Link href="/servicios" sx={{ textDecoration: "none", color: "inherit" }}>
-                Reservar Ahora
-              </Link>
-            </Button>
+              {
+                user?.rol == "CLIENTE" ?
+                  (
+                    <Button 
+                      variant="contained" 
+                      color="secondary" 
+                      size="large"
+                      startIcon={<PetsIcon />}
+                      sx={{ 
+                        borderRadius: '50px',
+                        padding: '12px 36px',
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem'
+                      }}
+                    >
+                      <Link href="/servicios" sx={{ textDecoration: "none", color: "inherit" }}>
+                        Reservar Ahora
+                      </Link>
+                        
+                    </Button>
+                  ) : null 
+              }
           </Box>
         </Container>
       </Box>

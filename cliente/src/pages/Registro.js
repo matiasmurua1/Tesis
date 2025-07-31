@@ -162,14 +162,13 @@ const Registro = () => {
         //     esEmpleador: false,
         //     id_servicio: '',
         //     imagen: null
-        // });
-
-      
+        // });      
     }
   };
   
   
   const handleNavigate = () => {
+    console.log("IIIFFF infoMensaje", infoMensaje)
     
     if(infoMensaje === "Usuario creado exitosamente"){
       navigate("/login")

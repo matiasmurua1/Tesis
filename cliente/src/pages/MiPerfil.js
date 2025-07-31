@@ -453,6 +453,7 @@ const MiPerfil = () => {
       />
 
       {/* Modal de actualización */}
+      
       <EditarPerfilModal
         open={openModal}
         onClose={() => setOpenModal(false)}
@@ -462,6 +463,7 @@ const MiPerfil = () => {
         mostrarContrasena={mostrarContrasena}
         toggleMostrarContrasena={toggleMostrarContrasena}
         rol={user.rol}
+        mostrarOpcionesServicios={user.rol === "EMPLEADOR"}
       />
       
     </Container>

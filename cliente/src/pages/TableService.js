@@ -214,7 +214,7 @@ export default function TableServices() {
 
    const empleadoresFiltrados = empleadores
         .filter((empleador) =>
-            filtroCalificacion ? empleador.calificacion >= filtroCalificacion : true
+            filtroCalificacion ? empleador.calificacion === filtroCalificacion : true
         )
         .filter((empleador) =>
             filtroUbicacion

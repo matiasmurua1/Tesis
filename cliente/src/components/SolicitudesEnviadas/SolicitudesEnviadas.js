@@ -62,10 +62,12 @@ const SolicitudesEnviadas = ({ solicitudes, loading, onDeleteSolicitud, recargar
       comentario: review,
     }
     
-     try {
-      const data = await enviarCalificacion(payload);
-      recargarSolicitudes()
-      setOpenModalClasificar(false)
+    try {
+        await enviarCalificacion(payload);
+
+        await recargarSolicitudes();
+
+        setOpenModalClasificar(false);
     } catch (error) {
       console.error("Error al calificar al empleador:", error);
     } 
