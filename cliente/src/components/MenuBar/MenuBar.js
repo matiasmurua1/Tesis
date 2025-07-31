@@ -1,33 +1,54 @@
 import React from "react";
-
-import Typography from "@mui/material/Typography";
-//https://mui.com/material-ui/react-typography/
-
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-// import ListItemText from '@mui/material/ListItemText';
-import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Button from "@mui/material/Button";
-import Link from "@mui/material/Link";
+import { useAuth } from "../../context/usuarioContexto";
+import {
+  Typography,
+  AppBar,
+  Box,
+  CssBaseline,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  Toolbar,
+  Button,
+  Link,
+  Grid,
+  Avatar,
+  Menu,
+  MenuItem
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  AccountCircle,
+  ExitToApp,
+  Login
+} from "@mui/icons-material";
 import logo from "../../assets/Home/logo.jpeg";
-import Grid from "@mui/material/Grid2";
 
 const drawerWidth = 240;
 
 export default function MenuBar() {
-  // Creamos un estado para el modo Mobile
+  const { user, logout } = useAuth(); // Asegúrate de que tu contexto provea logout
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleMenuClose();
   };
 
   const drawer = (
@@ -39,33 +60,56 @@ export default function MenuBar() {
       <List>
         <ListItem disablePadding>
           <ListItemButton sx={{ textAlign: "center" }}>
-            <Link href="/" sx={{ textDecorationLine: "none", color: "white" }}>
+            <Link href="/" sx={{ textDecoration: "none", color: "inherit" }}>
               Home
             </Link>
-            {/* <ListItemText primary={item} /> */}
           </ListItemButton>
         </ListItem>
 
+        {
+            user?.rol == "CLIENTE" ?
+                (
+                    <ListItem disablePadding>
+                      <ListItemButton sx={{ textAlign: "center" }}>
+                        <Link href="/servicios" sx={{ textDecoration: "none", color: "inherit" }}>
+                          Servicios
+                        </Link>
+                      </ListItemButton>
+                    </ListItem>
+                ) : null 
+        }
+
         <ListItem disablePadding>
           <ListItemButton sx={{ textAlign: "center" }}>
-            <Link
-              href="/servicios"
-              sx={{ textDecorationLine: "none", color: "black" }}
-            >
-              Servicios
-            </Link>
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton sx={{ textAlign: "center" }}>
-            <Link
-              href="/acerca-de"
-              sx={{ textDecorationLine: "none", color: "black" }}
-            >
+            <Link href="/acerca-de" sx={{ textDecoration: "none", color: "inherit" }}>
               Acerca de
             </Link>
           </ListItemButton>
         </ListItem>
+
+        {user ? (
+          <ListItem disablePadding>
+            <ListItemButton sx={{ textAlign: "center" }}>
+              <Link 
+                href="/mi-perfil" 
+                sx={{ textDecoration: "none", color: "inherit" }}
+              >
+                Mi Perfil
+              </Link>
+            </ListItemButton>
+          </ListItem>
+        ) : (
+          <ListItem disablePadding>
+            <ListItemButton sx={{ textAlign: "center" }}>
+              <Link 
+                href="/login" 
+                sx={{ textDecoration: "none", color: "inherit" }}
+              >
+                Login
+              </Link>
+            </ListItemButton>
+          </ListItem>
+        )}
       </List>
     </Box>
   );
@@ -75,7 +119,10 @@ export default function MenuBar() {
       <CssBaseline />
       <AppBar
         component="nav"
-        sx={{ paddingX: { xs: "0px", sm: "10px", md: "150px", lg: "10%" } }}
+        sx={{ 
+          paddingX: { xs: "0px", sm: "10px", md: "150px", lg: "10%" },
+          backgroundColor: 'primary.main'
+        }}
       >
         <Toolbar>
           <IconButton
@@ -87,69 +134,89 @@ export default function MenuBar() {
           >
             <MenuIcon />
           </IconButton>
-          <Grid sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}>
-            <Grid display="flex" alignItems="center">
-              <img
-                src={logo}
-                alt="logo"
-                loading="lazy"
-                width={35}
-                height={35}
-                style={{ marginRight: 10 }}
-              />
-              <Typography variant="h6" component="div">
-                Cuidando Patitas
-              </Typography>
-            </Grid>
+          
+          <Grid sx={{ flexGrow: 1, display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
+            <img
+              src={logo}
+              alt="logo"
+              loading="lazy"
+              width={35}
+              height={35}
+              style={{ marginRight: 10, borderRadius: '50%' }}
+            />
+            <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+              Cuidando Patitas
+            </Typography>
           </Grid>
-          <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            <Button sx={{ color: "#fff" }}>
-              <Link
-                href="/usuariosClientes"
-                sx={{ textDecorationLine: "none", color: "white" }}
-              >
-                Mi Perfil
-              </Link>
+          
+          <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}>
+            <Button color="inherit" href="/" component={Link}>
+              Inicio
             </Button>
-            <Button sx={{ color: "#fff" }}>
-              <Link
-                href="/"
-                sx={{ textDecorationLine: "none", color: "white" }}
-              >
-                Inicio
-              </Link>
+
+            {
+            user?.rol == "CLIENTE" ?
+                (
+                  <Button color="inherit" href="/servicios" component={Link}>
+                    Servicios
+                  </Button>
+                ) : null 
+            }
+
+{
+            user?.rol == "EMPLEADOR" ?
+                (
+                  <Button color="inherit" href="/solicitudes" component={Link}>
+                    Solicitudes
+                  </Button>
+                ) : null 
+            }
+
+            <Button color="inherit" href="/acerca-de" component={Link}>
+              Acerca de
             </Button>
-            <Button sx={{ color: "#fff" }}>
-              <Link
-                href="/servicios"
-                sx={{ textDecorationLine: "none", color: "white" }}
-              >
-                Servicios
-              </Link>
-            </Button>
-            <Button sx={{ color: "#fff" }}>
-              <Link
-                href="/acerca-de"
-                sx={{ textDecorationLine: "none", color: "white" }}
-              >
-                Acerca de
-              </Link>
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              sx={{ marginLeft: "10px" }}
-            >
-              <Link
+            
+            {user ? (
+              <>
+                <Button color="inherit" href="/mi-perfil" component={Link}>
+                  Mi Perfil
+                </Button>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  color="inherit"
+                  onClick={handleMenuOpen}
+                  sx={{ ml: 1 }}
+                >
+                  <AccountCircle />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                >
+                  {/* <MenuItem onClick={handleMenuClose}>Perfil</MenuItem> */}
+                  <MenuItem onClick={handleLogout}>
+                    <ExitToApp sx={{ mr: 1 }} /> Cerrar Sesión
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                color="secondary"
+                startIcon={<Login />}
                 href="/login"
-                sx={{ textDecorationLine: "none", color: "black" }}
+                component={Link}
+                sx={{ ml: 2 }}
               >
                 Login
-              </Link>
-            </Button>
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
+      
       <nav>
         <Drawer
           variant="temporary"
@@ -169,7 +236,7 @@ export default function MenuBar() {
           {drawer}
         </Drawer>
       </nav>
-      <Toolbar />
+      <Toolbar /> {/* Esto añade espacio para el AppBar */}
     </Box>
   );
 }

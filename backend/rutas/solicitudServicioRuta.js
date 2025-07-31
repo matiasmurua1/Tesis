@@ -9,8 +9,12 @@ const solicitudServiciosControlador = require("../controladores/solicitudServici
 //Rutas servicios
 
 solicitudServicioRutas.get("/solicitudServicios", solicitudServiciosControlador.getSolicitudesServicio);
-solicitudServicioRutas.post("/solicitudServicios", solicitudServiciosControlador.createSolicitudServicio);
-solicitudServicioRutas.put("/solicitudServicios/:id", solicitudServiciosControlador.updateSolicitudServicio);
+solicitudServicioRutas.get("/solicitudServicios/:id", solicitudServiciosControlador.getSolicitudServicioPorID);
+solicitudServicioRutas.get("/solicitudServicios/cliente/:id", solicitudServiciosControlador.getSolicitudesServicioPorCliente);
+solicitudServicioRutas.get("/solicitudServicios/empleador/:id", solicitudServiciosControlador.getSolicitudesServicioPorEmpleador);
+solicitudServicioRutas.post("/solicitudServicios", express.json(), solicitudServiciosControlador.createSolicitudServicio);
+solicitudServicioRutas.put("/solicitudServicios/:id",  express.json(), solicitudServiciosControlador.updateSolicitudServicio);
+solicitudServicioRutas.patch("/solicitudServicios/:id",  express.json(), solicitudServiciosControlador.updateEstadoSolicitudServicio);
 solicitudServicioRutas.delete("/solicitudServicios/:id", solicitudServiciosControlador.deleteSolicitudServicio);
 
 

@@ -5,14 +5,14 @@ const usuarioClienteRutas = express.Router();
 
 const usuarioClienteControlador = require("../controladores/usuarioClienteControlador")
 
-
 //Rutas usuariosClientes
 
-usuarioClienteRutas.get("/usuariosClientes", usuarioClienteControlador.getUsuariosClientes);
-usuarioClienteRutas.get("/usuariosClientes/:id", usuarioClienteControlador.getUsuarioClientePorID);
-usuarioClienteRutas.post("/usuariosClientes", usuarioClienteControlador.postUsuarioCliente);
-usuarioClienteRutas.put("/usuariosClientes/:id", usuarioClienteControlador.putUsuarioCliente);
-usuarioClienteRutas.delete("/usuariosClientes/:id", usuarioClienteControlador.deleteUsuarioCliente);
+usuarioClienteRutas.get("/usuariosClientes", express.json(),usuarioClienteControlador.getUsuariosClientes);
+usuarioClienteRutas.get("/usuariosClientes/empleadores",express.json(), usuarioClienteControlador.getUsuariosEmpleadores);
+usuarioClienteRutas.get("/usuariosClientes/:id",express.json(), usuarioClienteControlador.getUsuarioClientePorID);
+usuarioClienteRutas.post("/usuariosClientes", express.json(), usuarioClienteControlador.postUsuarioCliente);
+usuarioClienteRutas.put("/usuariosClientes/:id", express.json(), usuarioClienteControlador.putUsuarioCliente);
+usuarioClienteRutas.delete("/usuariosClientes/:id",express.json(), usuarioClienteControlador.deleteUsuarioCliente);
 
 
 

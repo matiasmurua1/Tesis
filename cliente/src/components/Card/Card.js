@@ -6,8 +6,12 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
+import { useAuth } from "../../context/usuarioContexto";
 
 export default function MaterialCard({data}) {
+
+  const { user } = useAuth(); 
+
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia
@@ -25,9 +29,15 @@ export default function MaterialCard({data}) {
         </Typography>
       </CardContent>
       <Divider />
-      <CardActions>
-        <Button size="small" variant='contained' color='primary'>Ver Servicio</Button>
-      </CardActions>
+      {
+        user?.rol == "CLIENTE" ?
+          (
+        <CardActions>
+          <Button size="small" variant='contained' color='primary'>Ver Servicio</Button>
+        </CardActions>
+        
+        ): null
+      }
     </Card>
   );
 }

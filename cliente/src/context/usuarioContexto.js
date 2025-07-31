@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser({ username: decoded.username, rol: decoded.rol, id: decoded.id });
+        setUser({ username: decoded.username, rol: decoded.rol, id: decoded.id, id_servicio: decoded.id_servicio, direccion: decoded.direccion });
       } catch (error) {
         console.error("Error decoding token:", error);
         setUser(null);
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", token);
     const decoded = jwtDecode(token);
     console.log('decodee ',decoded);
-    setUser({ username: decoded.username, rol: decoded.rol, id: decoded.id });
+    setUser({ username: decoded.username, rol: decoded.rol, id: decoded.id, id_servicio: decoded.id_servicio });
     
   };
 
@@ -44,8 +44,12 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const modificarServicioUsuario = (data) => {
+    setUser({...user, id_servicio: data.id_servicio });
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, modificarServicioUsuario }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,6 @@
 const resenasModelo = require('../modelos/resenasModelo');
+const usuarioClienteModelo = require('../modelos/usuarioClienteModelo');
+const solicitudServiciosModelo = require('../modelos/solicitudServiciosModelo');
 
 // Controlador para obtener todas las resenas
 const getResenas = async (req, res) => {
@@ -13,13 +15,17 @@ const getResenas = async (req, res) => {
 
 // Controlador para crear una nueva resena
 const createResena = async (req, res) => {
-    const { id_usuario_cliente, comentario, id_solicitud_servicio } = req.body;
-    if (!id_usuario_cliente || !comentario || !id_solicitud_servicio) {
+    const { id_usuario_empleador, comentario, id_solicitud_servicio, puntaje } = req.body;
+    if (!id_usuario_empleador || !comentario || !id_solicitud_servicio || !puntaje) {
         return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
     }
     try {
-        const nuevaResenaId = await resenasModelo.postResena({ id_usuario_cliente, comentario, id_solicitud_servicio });
+        const nuevaResenaId = await resenasModelo.postResena({ id_usuario_empleador, comentario, id_solicitud_servicio, puntaje });
         res.status(201).json({ mensaje: 'Resena creada exitosamente', id: nuevaResenaId });
+        if(res.status(201)){
+            await usuarioClienteModelo.calificarEmpleador(id_usuario_empleador);
+            await solicitudServiciosModelo.patchSolicitudServicio(id_solicitud_servicio, { nombre: "id_resena", valor: nuevaResenaId});
+        }
     } catch (error) {
         console.error('Error al crear la resena:', error);
         res.status(500).json({ mensaje: 'Error al crear la resena' });

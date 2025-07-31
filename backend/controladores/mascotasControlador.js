@@ -1,7 +1,7 @@
 //Lógica para manejar las peticiones deservicios
 // const modelos
 const mascotasModelo = require('../modelos/mascotasModelo');
-
+const usuarioClienteModelo = require('../modelos/usuarioClienteModelo')
 // Controlador para obtener todos las mascotas
 const getMascotas = async (req, res) => {
   try {
@@ -12,11 +12,25 @@ const getMascotas = async (req, res) => {
   }
 };
 
+const getMascotasPorUsuario = async (req, res) => {
+  try {
+    const mascotas = await mascotasModelo.getMascotaByUserId(req.params.id); 
+    res.json(mascotas);  
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener mascotas' });
+  }
+};
+
 // Controlador para crear un nuevo servicio
 const createMascotas = async (req, res) => {
+  console.log("body createMascotas", req.body)
   try {
       const result = await mascotasModelo.postMascota(req.body); // Llama a la función postMascota del modelo
       res.status(201).json({ message: 'Mascota creada con éxito', insertId: result });
+      if(res.status(201)){
+          await usuarioClienteModelo.asignarMascotaUsuarioCliente(result, req.body.id_usuario);
+      }
+
   } catch (error) {
       res.status(500).json({ message: 'Error al crear Mascota' });
   }
@@ -25,17 +39,25 @@ const createMascotas = async (req, res) => {
 // Controlador para actualizar un servicio por ID
 const updateMascota = async (req, res) => {
   const { id } = req.params;
+  const { nombre, descripcion, edad, imagen, id_usuario } = req.body;
+
+  if (!nombre || !descripcion || !edad || !imagen || !id_usuario) {
+    return res.status(400).json({ message: 'Faltan datos obligatorios' });
+  }
+
   try {
-      const result = await mascotasModelo.putMascota(id, req.body); // Llama a la función putServicio del modelo
-      if (result > 0) {
-        res.json({ message: 'Mascota actualizada con éxito' });
-      } else {
-        res.status(404).json({ message: 'Mascota no encontrado' });
-      }
+    const result = await mascotasModelo.putMascota(id, req.body);
+    if (result > 0) {
+      res.json({ message: 'Mascota actualizada con éxito' });
+    } else {
+      res.status(404).json({ message: 'Mascota no encontrada' });
+    }
   } catch (error) {
-      res.status(500).json({ message: 'Error al actualizar Mascota' });
+    console.error('Error al actualizar mascota:', error);
+    res.status(500).json({ message: 'Error al actualizar Mascota' });
   }
 };
+
 
 // Controlador para eliminar un servicio por ID
 const deleteMascota = async (req, res) => {
@@ -57,5 +79,6 @@ module.exports = {
     getMascotas,
     createMascotas,
     updateMascota,
-    deleteMascota
+    deleteMascota,
+    getMascotasPorUsuario
 };
